@@ -1,0 +1,623 @@
+/* Header */
+.header {
+  border-bottom: 1px solid var(--rule);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem 2rem;
+  min-height: 4.25rem;
+  flex-wrap: wrap;
+  padding-block: 0.5rem;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  font-weight: 800;
+  font-variation-settings: "wdth" 118;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+
+.wordmarkLight {
+  font-weight: 450;
+}
+
+.logo {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--ink);
+}
+
+.nav {
+  margin-left: auto;
+}
+
+.nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: none;
+  font-weight: 550;
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 47.99rem) {
+  .headerRow {
+    gap: 0 0.75rem;
+  }
+  .wordmark {
+    font-size: 0.95rem;
+  }
+  .logo {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+  .nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+  }
+  .nav ul {
+    gap: 0 1rem;
+  }
+  .nav a {
+    white-space: nowrap;
+    font-size: 0.95rem;
+  }
+  .headerRow > :global(.lang-switch) {
+    margin-left: auto;
+    padding: 0.2rem 0.75rem;
+  }
+}
+
+.headerRow > :global(.lang-switch) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.3rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.headerRow > :global(.lang-switch):hover {
+  background: var(--paper-raised);
+}
+
+/* Hero */
+.hero {
+  padding-block: clamp(2.5rem, 1.5rem + 5vw, 6rem) clamp(3rem, 2rem + 5vw, 6.5rem);
+}
+
+.heroGrid {
+  display: grid;
+  gap: clamp(2rem, 1rem + 4vw, 4rem);
+  align-items: center;
+}
+
+@media (min-width: 64rem) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  }
+}
+
+.productName {
+  font-weight: 700;
+  font-variation-settings: "wdth" 118;
+  color: var(--ink-soft);
+}
+
+/* The headline is the drawing's lettering: wide, heavy, tightly set. */
+.heroTitle {
+  margin-top: 1rem;
+  font-size: var(--step-4);
+  font-weight: 820;
+  font-variation-settings: "wdth" 116;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+  max-width: 17ch;
+}
+
+:lang(ko) .heroTitle {
+  max-width: 15em;
+  letter-spacing: -0.035em;
+  line-height: 1.18;
+}
+
+.lede {
+  margin-top: 1.5rem;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 40rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.facts li {
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: var(--step--1);
+}
+
+.hero :global(.hero-plot) {
+  margin: 0;
+}
+
+.hero :global(.hero-plot) svg {
+  width: 100%;
+  height: auto;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-m);
+  background: var(--paper-raised);
+}
+
+.hero :global(.hero-plot) figcaption {
+  margin-top: 0.75rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  max-width: 46ch;
+}
+
+.hero :global(.plot-label) {
+  font-family: var(--font-code);
+  font-size: 17px;
+  fill: var(--ink);
+}
+
+.hero :global(.plot-sub) {
+  font-family: var(--font-code);
+  font-size: 14px;
+  fill: var(--ink-soft);
+}
+
+.hero :global(.plot-sub-flag) {
+  fill: var(--flag);
+  font-weight: 700;
+}
+
+.hero :global(.plot-line-held) {
+  stroke: var(--held);
+  stroke-width: 3;
+}
+
+.hero :global(.plot-line-moved) {
+  stroke: var(--flag);
+  stroke-width: 3.5;
+  stroke-dasharray: 12 7;
+}
+
+/* The one orchestrated moment on load: the moved line is surveyed, then flagged. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero :global(.plot-line-moved) {
+    animation: survey 1.1s 0.3s ease-out both;
+  }
+  .hero :global(.plot-flag) {
+    animation: flag-in 0.4s 1.35s ease-out both;
+  }
+}
+
+@keyframes survey {
+  from {
+    stroke-dashoffset: 300;
+    opacity: 0;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes flag-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Problem */
+.problems {
+  display: grid;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 52rem) {
+  .problems {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem;
+  }
+}
+
+.problems li {
+  padding-top: 1rem;
+  border-top: 3px solid var(--ink);
+}
+
+.problems p {
+  margin-top: 0.6rem;
+  color: var(--ink-soft);
+}
+
+/* Workflow: a traverse, because it really is a sequence */
+.traverse {
+  display: grid;
+  gap: 2.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+@media (min-width: 60rem) {
+  .traverse {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem;
+    position: relative;
+  }
+  .traverse::before {
+    content: "";
+    position: absolute;
+    top: 1.4rem;
+    left: 1.4rem;
+    right: 0;
+    border-top: 2px dashed var(--rule);
+  }
+}
+
+.traverse li {
+  position: relative;
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+.traverseNum {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.traverseName {
+  font-weight: 700;
+  font-variation-settings: "wdth" 120;
+  color: var(--ink-soft);
+}
+
+.traverse p {
+  color: var(--ink-soft);
+}
+
+.traverse h3 + p {
+  color: var(--ink);
+}
+
+.traverseCmd {
+  justify-self: start;
+  margin-top: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-s);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+}
+
+.statusKey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  margin: 3rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--rule);
+  list-style: none;
+}
+
+.statusKey li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Demo text version */
+.textVersion {
+  margin-top: 2rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-s);
+}
+
+.textVersion summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.textVersion ol,
+.textVersion ul {
+  max-width: var(--measure);
+  padding-left: 1.4rem;
+}
+
+.textVersion li + li {
+  margin-top: 0.6rem;
+}
+
+/* Commands */
+.commands {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.command {
+  display: grid;
+  gap: 0.6rem;
+  padding-block: 1.4rem;
+  border-top: 1px solid var(--rule);
+}
+
+.command:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.commandHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+
+.tagIcon {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.tagWrite {
+  background: var(--flag-wash);
+  color: var(--flag);
+  border: 1px solid var(--flag);
+}
+
+.tagRead {
+  background: var(--held-wash);
+  color: var(--held);
+  border: 1px solid var(--held);
+}
+
+.tagPlain {
+  border: 1px solid var(--rule);
+  color: var(--ink-soft);
+}
+
+.cmdRow {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.cmd {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  border-radius: var(--radius-s);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.92rem;
+}
+
+.cmdRow :global(.copy-btn) {
+  flex: none;
+  min-width: 5.5rem;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-s);
+  background: var(--paper-raised);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.cmdRow :global(.copy-btn[data-state="copied"]) {
+  background: var(--held-wash);
+  border-color: var(--held);
+  color: var(--held);
+}
+
+.command :global(.copy-failed) {
+  color: var(--flag);
+  font-size: var(--step--1);
+}
+
+.effect {
+  color: var(--ink-soft);
+}
+
+.warning {
+  margin-top: 2rem;
+  max-width: none;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid var(--flag);
+  background: var(--flag-wash);
+}
+
+/* Limits */
+.limits {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+@media (min-width: 52rem) {
+  .limits {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 3rem;
+  }
+}
+
+.limits > div {
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--rule);
+}
+
+.limits dt {
+  font-weight: 750;
+  font-size: var(--step-1);
+  line-height: 1.3;
+}
+
+.limits dd {
+  margin: 0.5rem 0 0;
+  color: var(--ink-soft);
+}
+
+/* Open source */
+.open {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 52rem) {
+  .open {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.openBody {
+  margin-top: 1rem;
+  font-size: var(--step-1);
+  line-height: 1.5;
+}
+
+.links {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.links a {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  border-top: 1px solid var(--rule);
+  font-size: var(--step-1);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.links li:last-child a {
+  border-bottom: 1px solid var(--rule);
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+/* Footer: the drawing's title block */
+.footer {
+  padding-block: 3rem 4rem;
+  border-top: 3px solid var(--ink);
+}
+
+.titleBlock {
+  width: 100%;
+  max-width: 36rem;
+  margin-left: auto;
+  border-collapse: collapse;
+  border: 2px solid var(--ink);
+  font-size: var(--step--1);
+}
+
+.titleBlock th,
+.titleBlock td {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--ink);
+  text-align: left;
+  vertical-align: top;
+}
+
+.titleBlock th {
+  width: 9.5rem;
+  font-weight: 650;
+  color: var(--ink-soft);
+}
+
+.footNote {
+  margin: 1rem 0 0 auto;
+  max-width: 36rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}

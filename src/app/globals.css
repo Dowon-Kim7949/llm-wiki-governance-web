@@ -1,0 +1,258 @@
+/*
+ * Design tokens: "Survey Record" (docs/DESIGN.md).
+ * A document is a surveyed station; a citation is a survey line to a fixed
+ * benchmark in the source; a changed source is a disturbed benchmark that
+ * calls for a resurvey. Colour always travels with a shape and a word.
+ */
+
+:root {
+  --paper: #e8ebe6;        /* field-book paper, cool grey-green */
+  --paper-raised: #f4f6f2;
+  --ink: #17232b;          /* slate ink */
+  --ink-soft: #46555c;
+  --rule: #9aa6a3;         /* survey line, unchanged */
+  --flag: #b0124f;         /* flagging tape: changed, re-review */
+  --flag-wash: #f6dbe5;
+  --held: #2b6146;         /* verified station */
+  --held-wash: #d7e7dc;
+  --pending: #7a5500;      /* needs_review */
+  --pending-wash: #f2e3c2;
+  --focus: #0b57d0;
+
+  --font-display: var(--font-archivo), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --font-body: var(--font-archivo), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  --font-code: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, "D2Coding", monospace;
+
+  /* Modular scale, ratio 1.25 from 17px */
+  --step--1: 0.85rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.33rem;
+  --step-2: 1.66rem;
+  --step-3: 2.08rem;
+  --step-4: clamp(2.2rem, 1.4rem + 3.6vw, 3.9rem);
+
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+  --measure: 68ch;
+  --max: 76rem;
+  --radius-s: 3px;
+  --radius-m: 10px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #121a1f;
+    --paper-raised: #1a252b;
+    --ink: #e5ebe7;
+    --ink-soft: #a9b6b3;
+    --rule: #5f6f6d;
+    --flag: #ff6fa3;
+    --flag-wash: #3a1626;
+    --held: #7fd0a2;
+    --held-wash: #17322a;
+    --pending: #f0c060;
+    --pending-wash: #392d12;
+    --focus: #8ab4ff;
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  font-variation-settings: "wdth" 100;
+  overflow-wrap: break-word;
+}
+
+:lang(ko) body,
+body:lang(ko) {
+  word-break: keep-all;
+  line-height: 1.7;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+code,
+kbd,
+pre {
+  font-family: var(--font-code);
+  font-size: 0.92em;
+}
+
+p code,
+li code,
+dd code {
+  overflow-wrap: anywhere;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  line-height: 1.12;
+  margin: 0;
+  text-wrap: balance;
+}
+
+h2 {
+  font-size: var(--step-3);
+  font-weight: 760;
+  font-variation-settings: "wdth" 112;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: var(--step-1);
+  font-weight: 680;
+}
+
+p {
+  margin: 0;
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -4rem;
+  z-index: 10;
+  padding: 0.6rem 1rem;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: var(--radius-s);
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: clamp(3.5rem, 2rem + 6vw, 7rem);
+  border-top: 1px solid var(--rule);
+}
+
+.section-head {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: clamp(2rem, 1rem + 3vw, 3.5rem);
+}
+
+.section-head p {
+  color: var(--ink-soft);
+  font-size: var(--step-1);
+  line-height: 1.5;
+}
+
+/* Station markers: shape + colour + text, never colour alone. */
+.marker {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  flex: none;
+  vertical-align: -0.05em;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 48px;
+  padding: 0.7rem 1.3rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-s);
+  font: inherit;
+  font-weight: 650;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn-primary:hover {
+  background: var(--flag);
+  border-color: var(--flag);
+  color: var(--paper);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn-secondary:hover {
+  background: var(--paper-raised);
+}

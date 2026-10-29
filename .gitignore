@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# test artifacts (screenshots are regenerated locally; never commit them)
+test-results/
+tests/e2e/screenshots/
+__pycache__/
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.stackdump
+npm-debug.log*
