@@ -199,6 +199,8 @@ def routing_checks(browser) -> None:
     check("root redirects to /ko/", page.url == f"{SITE}/ko/", page.url)
     page.goto(f"{SITE}/ko/#demo")
     page.wait_for_load_state("networkidle")
+    # The link follows the hash once hydrated; wait for that, as a reader would.
+    page.wait_for_function("document.querySelector('header .lang-switch').getAttribute('href').endsWith('/en/#demo')", timeout=10000)
     page.locator("header .lang-switch").click()
     page.wait_for_url("**/en/**", timeout=10000)
     page.wait_for_timeout(300)
