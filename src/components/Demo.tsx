@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { Dictionary, Mode } from "@/content/types";
 import { SOURCE_AFTER_ADDED, SOURCE_AFTER_REMOVED, SOURCE_BEFORE, transcriptFor } from "@/content/demo-transcript";
 import { Marker, MarkerShapes, type MarkerKind } from "./Marker";
@@ -29,12 +29,33 @@ export function Demo({ t }: { t: DemoText }) {
   const [step, setStep] = useState(0);
   const [mode, setMode] = useState<Mode>("lite");
   const ids = useId();
+  const recordRef = useRef<HTMLDivElement>(null);
+  const follow = useRef(false);
   const total = t.steps.length;
   const s = stateAt(step, mode);
   const current = t.steps[step];
   const transcript = transcriptFor(step, mode);
   const statusText = t.status[s.doc];
   const stepLabel = t.stepOf.replace("{n}", String(step + 1)).replace("{total}", String(total));
+
+  // A step the reader chose is shown where they can see it: when the record's
+  // heading is off screen (phones, or the pager at the bottom), bring it up.
+  // Focus stays on the control; the live region announces the change.
+  const go = (next: number) => {
+    follow.current = true;
+    setStep(next);
+  };
+
+  useEffect(() => {
+    const el = recordRef.current;
+    if (!follow.current || !el) return;
+    follow.current = false;
+    const top = el.getBoundingClientRect().top;
+    const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+    if (top >= margin - 1 && top + 96 <= window.innerHeight) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({ block: "start", behavior: reduce ? "auto" : "smooth" });
+  }, [step]);
 
   // Survey line state: absent until the doc cites, strained once the source moved.
   const line = !s.docExists ? "absent" : s.sourceChanged && !s.docFixed ? (step === 5 && mode !== "lite" ? "flagged" : "strained") : s.stamped ? "held" : "draft";
@@ -52,7 +73,7 @@ export function Demo({ t }: { t: DemoText }) {
                   type="button"
                   className={styles.station}
                   aria-current={i === step ? "step" : undefined}
-                  onClick={() => setStep(i)}
+                  onClick={() => go(i)}
                 >
                   <span className={styles.stationNum} aria-hidden="true">{i + 1}</span>
                   <span className={styles.stationName}>{item.title}</span>
@@ -134,7 +155,7 @@ export function Demo({ t }: { t: DemoText }) {
         </div>
 
         <div className={styles.record}>
-          <div aria-live="polite" aria-atomic="true">
+          <div ref={recordRef} className={styles.recordHead} aria-live="polite" aria-atomic="true">
             <p className={styles.stepLabel}>{stepLabel}</p>
             <h3 className={styles.stepTitle}>{current.title}</h3>
             <p className={styles.status}>
@@ -174,10 +195,10 @@ export function Demo({ t }: { t: DemoText }) {
           )}
 
           <div className={styles.pager}>
-            <button type="button" className="btn btn-secondary" onClick={() => setStep((v) => Math.max(0, v - 1))} disabled={step === 0}>
+            <button type="button" className="btn btn-secondary" onClick={() => go(Math.max(0, step - 1))} disabled={step === 0}>
               {t.prev}
             </button>
-            <button type="button" className="btn btn-primary" onClick={() => setStep((v) => Math.min(total - 1, v + 1))} disabled={step === total - 1}>
+            <button type="button" className="btn btn-primary" onClick={() => go(Math.min(total - 1, step + 1))} disabled={step === total - 1}>
               {t.next}
             </button>
           </div>

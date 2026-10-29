@@ -23,6 +23,32 @@
   }
 }
 
+/*
+ * Narrow screens: the traverse stays pinned while the record is read, and the
+ * mode box (it matters from step 6) moves below the record, so a station and
+ * its result are one thumb apart.
+ */
+@media (max-width: 59.99rem) {
+  .controls {
+    display: contents;
+  }
+  .controls > nav {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin-block: -0.5rem;
+    padding-block: 0.5rem;
+    background: var(--paper);
+  }
+  .modes {
+    order: 1;
+  }
+  /* Clear the pinned traverse (specificity beats the base .recordHead rule). */
+  .stage :is(a, button, input, pre, .recordHead) {
+    scroll-margin-top: 5rem;
+  }
+}
+
 /* The stations sit on one traverse line; the line is the sequence. */
 .stations {
   position: relative;
@@ -292,6 +318,10 @@
   display: grid;
   gap: 1rem;
   min-width: 0;
+}
+
+.recordHead {
+  scroll-margin-top: 1.5rem;
 }
 
 .stepLabel {
