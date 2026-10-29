@@ -178,6 +178,95 @@ def layout_checks(browser) -> None:
                 ctx.close()
 
 
+def narrow_checks(browser) -> None:
+    # The narrowest phones: wordmark and switch share the first row, the menu the second.
+    for lang in ["ko", "en"]:
+        ctx = browser.new_context(viewport={"width": 320, "height": 640})
+        page = ctx.new_page()
+        page.goto(f"{SITE}/{lang}/")
+        page.wait_for_load_state("networkidle")
+        rows = page.evaluate("""() => {
+            const box = (s) => document.querySelector(s).getBoundingClientRect();
+            const mark = box('header a[aria-label]'), sw = box('header .lang-switch'), nav = box('header nav');
+            return {markTop: mark.top, switchTop: sw.top, navHeight: nav.height};
+        }""")
+        check(f"[{lang}] header in two rows at 320px", abs(rows["markTop"] - rows["switchTop"]) < 2 and rows["navHeight"] <= 48, json.dumps(rows))
+        overflow = page.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth")
+        check(f"[{lang}] no horizontal overflow at 320px", overflow <= 0, f"{overflow}px")
+        page.screenshot(path=str(SHOTS / f"{lang}-320-header.png"), clip={"x": 0, "y": 0, "width": 320, "height": 200})
+        ctx.close()
+
+
+def demo_follow_checks(browser) -> None:
+    # A step chosen on a phone shows its result on screen; focus stays on the control.
+    in_view = """() => {
+        const r = document.querySelector('#demo [aria-live]').getBoundingClientRect();
+        const n = document.querySelector('#demo nav').getBoundingClientRect();
+        return r.top >= Math.max(0, n.bottom - 1) && r.top + 96 <= innerHeight;
+    }"""
+    # Judge only once a smooth scroll has come to rest (scrollY still for 250 ms).
+    settled = """() => new Promise((done) => {
+        let y = scrollY, still = 0;
+        const t = setInterval(() => {
+            if (scrollY === y) { if (++still >= 5) { clearInterval(t); done(true); } }
+            else { y = scrollY; still = 0; }
+        }, 50);
+    })"""
+    for motion in ["reduce", "no-preference"]:
+        ctx = browser.new_context(viewport={"width": 360, "height": 780}, reduced_motion=motion)
+        page = ctx.new_page()
+        page.goto(f"{SITE}/ko/")
+        page.wait_for_load_state("networkidle")
+        page.evaluate("document.documentElement.style.scrollBehavior = 'auto'; document.querySelector('#demo nav').scrollIntoView({block: 'center'})")
+        stations = page.locator("#demo nav button")
+        stations.nth(3).click()
+        page.evaluate(settled)
+        shown = page.evaluate(in_view)
+        check(f"phone demo shows the chosen step (reduced-motion={motion})", shown, json.dumps(page.evaluate("Math.round(document.querySelector('#demo [aria-live]').getBoundingClientRect().top)")))
+        pinned = page.evaluate("Math.round(document.querySelector('#demo nav').getBoundingClientRect().top)")
+        check(f"phone demo keeps the stations pinned (reduced-motion={motion})", pinned == 0, f"top {pinned}px")
+        if motion == "reduce":
+            focused = page.evaluate("document.activeElement.getAttribute('aria-current')")
+            check("phone demo leaves focus on the chosen station", focused == "step", str(focused))
+            page.screenshot(path=str(SHOTS / "ko-mobile-demo-step4.png"))
+        page.locator("#demo .btn-primary").scroll_into_view_if_needed()
+        page.locator("#demo .btn-primary").click()
+        page.evaluate(settled)
+        shown = page.evaluate(in_view)
+        check(f"phone demo shows the next step after the pager (reduced-motion={motion})", shown)
+        ctx.close()
+    # On a wide screen the record is already beside the stations: nothing moves.
+    ctx = browser.new_context(viewport={"width": 1440, "height": 900})
+    page = ctx.new_page()
+    page.goto(f"{SITE}/ko/")
+    page.wait_for_load_state("networkidle")
+    page.evaluate("document.documentElement.style.scrollBehavior = 'auto'; document.querySelector('#demo nav').scrollIntoView({block: 'start'})")
+    before = page.evaluate("scrollY")
+    page.locator("#demo nav button").nth(4).click()
+    page.wait_for_timeout(600)
+    moved = page.evaluate("scrollY") - before
+    check("desktop demo does not scroll on a station click", moved == 0, f"{moved}px")
+    ctx.close()
+
+
+def font_checks(browser) -> None:
+    # Korean h1/h2 use the subset display face; the English page never fetches it.
+    for lang in ["ko", "en"]:
+        ctx = browser.new_context()
+        page = ctx.new_page()
+        fetched: list[str] = []
+        page.on("request", lambda r: fetched.append(r.url) if "display-ko-bold" in r.url else None)
+        page.goto(f"{SITE}/{lang}/")
+        page.wait_for_load_state("networkidle")
+        page.evaluate("document.fonts.ready")
+        loaded = page.evaluate("[...document.fonts].some(f => f.family.includes('LLM-WIKI Display KR') && f.status === 'loaded')")
+        if lang == "ko":
+            check("[ko] headings load the Korean display face", loaded and len(fetched) == 1, f"loaded={loaded} requests={len(fetched)}")
+        else:
+            check("[en] Korean display face not requested", not fetched, " ".join(fetched))
+        ctx.close()
+
+
 def motion_checks(browser) -> None:
     for motion, expect_anim in [("reduce", False), ("no-preference", True)]:
         ctx = browser.new_context(reduced_motion=motion)
@@ -240,6 +329,9 @@ def main() -> int:
             keyboard_checks(browser, lang)
             copy_checks(browser, lang)
         layout_checks(browser)
+        narrow_checks(browser)
+        demo_follow_checks(browser)
+        font_checks(browser)
         motion_checks(browser)
         routing_checks(browser)
         browser.close()
