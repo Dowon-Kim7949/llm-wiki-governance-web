@@ -188,7 +188,7 @@ def narrow_checks(browser) -> None:
         rows = page.evaluate("""() => {
             const box = (s) => document.querySelector(s).getBoundingClientRect();
             const mark = box('header a[aria-label]'), sw = box('header .lang-switch'), nav = box('header nav');
-            return {markTop: mark.top, switchTop: sw.top, navHeight: nav.height};
+            return {markTop: mark.top, switchTop: sw.top, navHeight: nav.height, slack: Math.round(sw.left - mark.right)};
         }""")
         check(f"[{lang}] header in two rows at 320px", abs(rows["markTop"] - rows["switchTop"]) < 2 and rows["navHeight"] <= 48, json.dumps(rows))
         overflow = page.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth")

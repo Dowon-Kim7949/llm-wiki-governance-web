@@ -114,8 +114,24 @@
   }
 }
 
-/* Below 360px the four English menu items need a tighter set to stay on one row. */
+/*
+ * Below 360px: about 10px of slack for the first row, since text widths differ
+ * across platforms, and a tighter menu so the four English items fit one row.
+ */
 @media (max-width: 22.49rem) {
+  .headerRow {
+    gap: 0 0.5rem;
+  }
+  .wordmark {
+    letter-spacing: 0;
+  }
+  .logo {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .headerRow > :global(.lang-switch) {
+    padding: 0.2rem 0.5rem;
+  }
   .nav ul {
     gap: 0 0.75rem;
   }
