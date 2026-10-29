@@ -87,6 +87,18 @@
   }
 }
 
+/* Keep wordmark and language switch on one row on the narrowest phones. */
+@media (max-width: 25rem) {
+  .wordmark {
+    font-size: 0.85rem;
+    gap: 0.4rem;
+  }
+  .headerRow > :global(.lang-switch) {
+    padding: 0.2rem 0.6rem;
+    font-size: 0.9rem;
+  }
+}
+
 .headerRow > :global(.lang-switch) {
   display: inline-flex;
   align-items: center;
