@@ -1,4 +1,8 @@
 export type Mode = "lite" | "standard" | "strict";
+/** Source files in the demo repository (scripts/capture-playground.sh). */
+export type FileId = "invoice" | "shipping" | "format";
+/** Approved docs in the demo repository. */
+export type DocId = "billing" | "shipping";
 
 export type CommandEntry = {
   id: string;
@@ -11,13 +15,13 @@ export type CommandEntry = {
   effect: string;
 };
 
-export type DemoStep = {
+/** One step of a scroll sequence: what the visitor reads while the drawing changes. */
+export type Beat = {
   id: string;
   title: string;
-  /** What happened at this station, in one or two sentences. */
   body: string;
-  /** The honest caveat for this station. */
-  caveat: string;
+  /** The honest caveat for this step, when there is one. */
+  note?: string;
 };
 
 export type Dictionary = {
@@ -25,59 +29,73 @@ export type Dictionary = {
   nav: {
     skip: string;
     label: string;
-    workflow: string;
-    demo: string;
+    story: string;
+    playground: string;
     start: string;
     limits: string;
     langLabel: string;
     otherLang: string;
     otherLangName: string;
   };
-  hero: {
+  /** Words drawn on the plates. File paths and frontmatter stay as the CLI writes them. */
+  world: {
+    claimInvoice: string;
+    claimInvoiceFixed: string;
+    claimShippingFree: string;
+    claimShippingFee: string;
+    flag: string;
+  };
+  opening: {
     title: string;
     lede: string;
     primary: string;
     secondary: string;
-    facts: string[];
-    plotLabel: string;
-    plotDoc: string;
-    plotSrcA: string;
-    plotSrcB: string;
-    plotNote: string;
+    scrollHint: string;
+    beats: Beat[];
   };
-  problem: { heading: string; intro: string; points: { title: string; body: string }[] };
-  workflow: {
+  story: {
     heading: string;
     intro: string;
-    steps: { name: string; title: string; body: string; cmd?: string }[];
+    /** "{n}" and "{total}" are replaced. */
+    stepOf: string;
+    beats: Beat[];
   };
-  demo: {
+  playground: {
     heading: string;
     intro: string;
     disclaimer: string;
-    controlsLabel: string;
-    prev: string;
-    next: string;
-    /** "{n}" and "{total}" are replaced; must stay serializable for the client demo. */
-    stepOf: string;
+    fileLabel: string;
+    files: Record<FileId, { citedBy: string }>;
+    /** "{docs}" is replaced by the doc names, or by `none`. */
+    cites: string;
+    none: string;
+    and: string;
+    changeLabel: string;
+    commit: string;
+    revert: string;
     modeLabel: string;
-    modeHint: string;
     modes: Record<Mode, { label: string; summary: string }>;
-    status: { title: string; none: string; needs: string; verified: string; flagged: string; unchecked: string };
-    fileSource: string;
-    fileDoc: string;
+    idle: string;
+    result: { off: string; clear: string; warn: string; fail: string };
+    gate: { label: string; idle: string; pass: string; warn: string; fail: string };
     terminal: string;
-    steps: DemoStep[];
-    textHeading: string;
-    textIntro: string;
-    legend: { citation: string; unchanged: string; changed: string };
-    finding: Record<Mode, string>;
-    sentenceBefore: string;
-    sentenceAfter: string;
+    next: string;
+  };
+  review: {
+    heading: string;
+    intro: string;
+    stepOf: string;
+    beats: Beat[];
   };
   start: {
     heading: string;
     intro: string;
+    previewTitle: string;
+    previewNote: string;
+    /** Command ids from `commands`, in the order a newcomer runs them after the preview. */
+    steps: string[];
+    facts: string[];
+    allCommands: string;
     writes: string;
     readOnly: string;
     noInstall: string;

@@ -1,0 +1,4 @@
+warning: in the working copy of 'docs/llm-wiki/domains/billing.md', LF will be replaced by CRLF the next time Git touches it
+ docs/llm-wiki/domains/billing.md | 6 +++---
+ src/invoice.js                   | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)

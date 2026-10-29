@@ -58,12 +58,20 @@ test("commands that write are labelled as writing", () => {
   }
 });
 
-test("the demo has seven steps and quotes real impact output per mode", () => {
+test("the scroll scenes have the same beats in both languages", () => {
+  const ids = (d: typeof ko) => ({
+    opening: d.opening.beats.map((b) => b.id),
+    story: d.story.beats.map((b) => b.id),
+    review: d.review.beats.map((b) => b.id),
+  });
+  assert.deepEqual(ids(ko), ids(en));
+  assert.deepEqual(ids(ko).story, ["cite", "approve", "change", "stay", "flag"]);
+  assert.deepEqual(ids(ko).review, ["read", "downgrade", "fix", "approve", "cycle"]);
+});
+
+test("the start steps are published commands", () => {
   for (const d of [ko, en]) {
-    assert.equal(d.demo.steps.length, 7);
-    assert.match(d.demo.finding.lite, /^impact\.source_changed: off/);
-    assert.match(d.demo.finding.standard, /^\[warning\] impact\.source_changed/);
-    assert.match(d.demo.finding.strict, /^\[error\] impact\.source_changed[\s\S]*exit code 1$/);
+    for (const id of d.start.steps) assert.ok(d.start.commands.some((c) => c.id === id), id);
   }
 });
 

@@ -1,0 +1,23 @@
+# LLM-WIKI Review
+
+## Summary
+- needs_review: 9
+- approvable: 4
+- blocked_by_findings: 5
+- total_docs_scanned: 10
+
+## Needs Review (risk-ranked)
+- docs/llm-wiki/ARCHITECTURE_CONVENTIONS.md — Architecture Conventions [risk 40, BLOCKED] findings: 1 (warning=1)
+- docs/llm-wiki/DOMAIN_FEATURES.md — Domain Features [risk 40, BLOCKED] findings: 1 (warning=1)
+- docs/llm-wiki/domains/00_overview.md — Domain Overview [risk 40, BLOCKED] findings: 1 (warning=1)
+- docs/llm-wiki/GLOSSARY.md — Glossary [risk 40, BLOCKED] findings: 1 (warning=1)
+- docs/llm-wiki/project-profile.md — Project Profile [risk 40, BLOCKED] findings: 1 (warning=1)
+- docs/llm-wiki/domains/billing.md — Billing [risk 0] findings: 0
+- docs/llm-wiki/domains/shipping.md — Shipping [risk 0] findings: 0
+- docs/llm-wiki/index.md — LLM-WIKI Index [risk 0] findings: 0
+- docs/llm-wiki/README.md — LLM-WIKI README [risk 0] findings: 0
+
+## Caveats
+- Read-only list. Risk-ranks needs_review docs (never-enriched / thin / no-evidence / broken-link first) for fast spot-checking. Restricted/sensitive docs are excluded unless --include-sensitive.
+- Scope: content documents under docs/llm-wiki, excluding docs/llm-wiki/templates/ (skeletons adopters copy) and the append-only log. The freshness gates (drift, impact) skip templates too, so this boundary no longer produces findings you cannot clear (N-14).
+- Promotion to verified is never automatic: run review --approve <path> (or review --approve-all --yes) to stamp verified + reviewed_by + reviewed_at, plus the tags: status tag when the document already carries one. Docs with blocking/structural findings are refused until fixed. Human review is the default; if your project delegates the approval run, set llm-wiki.config.json "reviewer" so reviewed_by names whoever actually approves.

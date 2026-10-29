@@ -1,0 +1,77 @@
+# LLM-WIKI Quickstart
+
+## About · 소개
+- A code-grounded knowledge base your AI agent reads: scaffold docs → fill them from real code, with the handoff prompt below in your coding agent or by hand → review them and approve with `llm-wiki review --approve <path>` (the tool records who approved; it cannot prove it).
+- AI 에이전트가 읽는 코드-근거 지식베이스입니다. 문서 뼈대 생성 → 아래 handoff 프롬프트를 코딩 에이전트에 붙여넣거나 직접 써서 실제 코드로 채움 → 검토 후 `llm-wiki review --approve <경로>`로 승인(누가 승인했는지 기록할 뿐 증명하지는 못합니다).
+
+## Completed Steps
+- doctor completed.
+- init --write completed.
+- validate-frontmatter completed.
+- handoff prompt prepared.
+
+## Init Summary
+- result: pass
+- project_type: unknown
+- confidence: low
+- created: 11
+
+## Frontmatter Summary
+- files_checked: 10
+- findings: 0
+- result: pass
+
+## Next Step
+- CLI setup is complete. Hand off to Codex or Claude Code and run the prompt below. · CLI 작업이 완료되었습니다. Codex 또는 Claude Code에게 넘어가서 아래 프롬프트를 실행하세요.
+- How to run — the 'Handoff Prompt' below is an instruction you give your coding agent, not a CLI command · 실행 방법 — 아래 'Handoff Prompt'는 CLI가 실행하는 게 아니라 코딩 에이전트에게 넘기는 지시문입니다:
+- 1) Paste the prompt below into a Claude Code or Codex session opened on this repo. If you are already inside Claude Code here, paste it right here. · 이 저장소를 연 세션에 아래 프롬프트를 그대로 붙여넣으세요.
+- 2) The agent reads the real code and fills docs/llm-wiki with evidence; backend/fullstack projects also enrich per-domain domains/*.md. · 에이전트가 실제 코드를 읽고 문서를 근거와 함께 채웁니다.
+- 3) Review the result. When it is right, approve it: llm-wiki review --approve <path> (llm-wiki validate checks structure only). Who may approve is your project's policy; the tool records who did. · 결과를 검토하고, 맞으면 llm-wiki review --approve <경로>로 승인하세요(validate는 구조만 검사합니다). 누가 승인할지는 프로젝트가 정합니다.
+- No coding agent? Fill the docs yourself: replace the placeholder bullets, cite the files you describe in source_files / evidence, then approve as in 3). Guide: https://github.com/Dowon-Kim7949/llm-wiki-governance/blob/main/docs/WRITING_DOCS_BY_HAND.md · 에이전트가 없다면 직접 채워도 됩니다. 안내: 위 링크
+- Governance mode: lite — change checks are off: impact and drift report nothing when a cited file changes. Turn them on with llm-wiki mode set standard --write (warnings) or strict (fails the build). · 거버넌스 모드: lite — 변경 점검이 꺼져 있어 인용한 파일이 바뀌어도 impact와 drift가 아무것도 보고하지 않습니다. 켜려면 mode set standard --write(경고) 또는 strict(빌드 실패).
+- For a real handoff, escalate and reconstruct first: llm-wiki mode set strict --write, then llm-wiki backfill (add --write to create the missing document stubs, --strict to gate on readiness). · 인수인계라면 strict로 올리고 backfill을 먼저 돌리세요.
+
+## Handoff Prompt
+```text
+Documentation language: write all LLM-WIKI document content — prose, headings, summaries, review notes, and the log.md entry — in English. Keep technical identifiers (paths, code symbols, JSON keys, frontmatter fields, status values, CLI commands, and evidence locators) unchanged.
+1. Read docs/llm-wiki/index.md first.
+2. Review the init-generated documents and their source_files to see what still needs grounding.
+3. Investigate the actual code, config, routing, public APIs, data models, and key workflows before making any claim.
+General evidence focus:
+- Inspect the files referenced by source_files first, then map architecture, workflows, configuration, tests, and open review questions from real code evidence.
+Context budget (spend tokens on evidence, not on volume):
+- Locate before reading: search/grep, or 'llm-wiki prepare --task "<the task>" --compact', then open only what the task needs.
+- Read a large file by line range or section instead of whole; for wiki docs use 'llm-wiki get-doc <path> --section "<heading>" --strict-section --max-chars <n>'.
+- Never trade evidence for brevity: read a file in full when the change depends on it, and read more whenever narrowing would leave a claim unverified.
+- Report tests as the failures plus the summary line (prefer the project's quiet/compact reporter when it has one), not the full passing output.
+Governance budget (lite — documentation is not the work here):
+- Do NOT touch the wiki for an ordinary change. Update it only when a new domain concept appeared, an architectural decision was made, a constraint a future agent must know was introduced, the change implements a requirement document (link its source and tests in that document's evidence), or a critical document is now demonstrably wrong.
+- When none of those applies, finish at the code and the tests and say "no wiki change needed (lite)". That is a complete result, not a skipped step — do not append to the log either.
+- Never run a repository-wide audit, a drift scan, or document generation here; those are explicit on-demand commands.
+- The one override: knowledge an agent cannot re-derive from the code. If the next agent would get it wrong, record it — that is the only documentation lite keeps.
+- Generated for governance mode lite; 'llm-wiki mode' shows the current one, and 'llm-wiki init --write --skills --refresh' regenerates this workflow after a change.
+4. Replace placeholder content with descriptions backed by real source evidence. Do not guess — leave anything uncertain as an explicit review item instead of inventing detail.
+5. For backend/fullstack projects, also enrich the related docs/llm-wiki/domains/*.md documents.
+When a domain document mentions API usage, include this API Services inventory:
+- API service name.
+- Endpoint or client module.
+- HTTP method or call signature.
+- Request params or payload.
+- Response shape.
+- Auth, session, token, or cookie dependency.
+- Error handling.
+- Retry or timeout behavior.
+- Cache or state update behavior.
+- Related UI or domain workflow.
+- `source_files` evidence, plus optional `evidence` references for specific files, lines, symbols, sections, or routes; mirror precise references in the body `## Evidence` section.
+6. Tidy the related frontmatter entries and local Markdown links between related documents.
+7. Record broad evidence in source_files and precise evidence in the frontmatter evidence entries, mirrored in the body ## Evidence section.
+8. Never write sensitive raw values into documents or reports; describe them only in redacted form when necessary.
+9. Keep every created or edited wiki document at status: needs_review.
+10. Do not promote anything to verified — verified is human-approved only.
+11. Append docs/llm-wiki/log.md in append-only style with the changed files, evidence, caveats, and remaining review items.
+12. When finished, run the appropriate validate / audit / stats checks and summarize the results, and call out the areas with thin or missing evidence and the items a human must review before verified.
+```
+
+## Caveats
+- CLI-created or CLI-edited wiki documents remain needs_review until someone approves them with llm-wiki review --approve. Run llm-wiki validate separately for structure or CI validation.

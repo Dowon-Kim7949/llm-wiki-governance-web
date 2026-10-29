@@ -1,0 +1,40 @@
+# LLM-WIKI Reverse-Impact
+
+## Summary
+- result: warning
+- strict: false
+- governance_mode: standard
+- baseline: since 098519a342d932b343ab27d060a324362563a5cb
+- changed_files: 1
+- anchoring_files: 1
+- impacted_verified_docs: 2
+- locator_narrowed: 0
+- findings: 2
+- stamp_only_exclusions: 0
+
+## Documents to re-review
+| Document | Changed source it cites |
+| --- | --- |
+| `docs/llm-wiki/domains/billing.md` | `src/shipping.js` |
+| `docs/llm-wiki/domains/shipping.md` | `src/shipping.js` |
+
+Next: re-read each document against the listed sources and update what is no longer true in this same change, then approve it again (`llm-wiki review --approve <path>`). `llm-wiki explain impact.source_changed` lists the other ways to clear it.
+
+## Finding Summary
+- total: 2
+- by_severity: warning=2
+- by_category: impact=2
+
+## Findings
+- [warning] impact.source_changed docs/llm-wiki/domains/billing.md: Verified document depends on src/shipping.js, which changed in this diff, but the document is unchanged; re-review and update it or downgrade to needs_review.
+- [warning] impact.source_changed docs/llm-wiki/domains/shipping.md: Verified document depends on src/shipping.js, which changed in this diff, but the document is unchanged; re-review and update it or downgrade to needs_review.
+
+## Caveats
+- Reverse-impact flags verified documents whose referenced source changed in this diff while the document did not (git-diff based). Run it from the repo root.
+- Anchors are file-level, with one exception: a file cited ONLY in evidence, and only through line ranges (#L10-L20, path:10-20) or sections of a Markdown file (#section:Heading), is compared region by region between the baseline (--since ref, else HEAD) and the working tree. If every cited region reads the same, the citation is listed under locator_narrowed instead of failing the document. A file also in source_files, also cited bare or by #symbol:/#route:, a directory anchor, a file with no baseline copy, or a region that cannot be located on both sides (a range past the end of the file, a section heading that matches zero or several headings) stays file-level.
+- impact.source_changed is an error by default under governance mode strict, a warning under standard, and off under lite; this run resolved to standard (from cli). Under strict it fails a build on its own and --strict does not change that. Dial it down per project with "impact.source_changed": "warning" (or "info"/"off") in llm-wiki.config.json rules, or rulesPreset: "relaxed" — the precedence is mode floor < rulesPreset < explicit rules. This complements the date-anchored evidence.stale (drift), it does not replace it.
+- Documents whose doc_type is release_notes are exempt: they are immutable records of a shipped release and they anchor package.json, which changes every release.
+- A package.json whose diff moves nothing but the version value is reported as changed but not used for anchoring (N-13, 2026-08-04): every release bumps it and no document's claims depend on the number. Any other key, an unparseable manifest, a version field added or removed, or a manifest with no baseline to compare against all still count. Version-only exclusion is package.json only, and never applies to pyproject.toml or Cargo.toml.
+- Documents under docs/llm-wiki/templates/ are out of scope (N-14, 2026-08-06): they are skeletons adopters copy, and review cannot promote or re-stamp them, so flagging them produced findings with no way to clear them. The append-only change log is out of scope for the same reason.
+- stamp_only_exclusions counts wiki documents inside this diff whose ONLY change is a review stamp (status / reviewed_by / reviewed_at / last_updated / the status tag). A document in the diff is not flagged, on the reading that it was updated in this change — and a stamp satisfies that test without anyone re-reading anything, so one unrelated 'review --approve-all' in a PR's range exempts every document it stamped for the whole PR (N-9; measured: a stale contract description passed the gate that way). This is REPORTED and not enforced, because the same exclusion is how the standard remediation clears a finding, so enforcing it would leave real drift with no resolution path (N-11). Treat a non-zero count as 'these documents were not actually checked by this run'.
+exit=0

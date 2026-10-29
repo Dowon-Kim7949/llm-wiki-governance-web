@@ -1,0 +1,148 @@
+/* Scene 01. Narrow screens and reduced motion: headline, then the drawing. */
+.opening {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--header-h);
+  overflow: clip;
+}
+
+.copy {
+  order: 1;
+  position: relative;
+  z-index: 2;
+  padding: clamp(1.5rem, 1rem + 3vw, 3rem) var(--gutter) 0;
+}
+
+.stage {
+  order: 2;
+  position: relative;
+  height: min(60svh, 34rem);
+  margin-top: 0.5rem;
+}
+
+.title {
+  font-size: var(--display-1);
+  font-weight: 830;
+  font-variation-settings: "wdth" 110;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+:lang(ko) .title {
+  max-width: 11em;
+  font-size: var(--display-1-ko);
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+}
+
+:lang(ko) .clause {
+  display: inline-block;
+}
+
+.lede {
+  max-width: 36rem;
+  margin-top: 1.25rem;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--fg-soft);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+/* The opening's two captions belong to the scrubbed sequence; elsewhere the story says the same. */
+.caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.hint {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .opening {
+    display: block;
+    min-height: 100svh;
+  }
+  .stage {
+    position: absolute;
+    inset: 0;
+    height: auto;
+    margin: 0;
+  }
+  .copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100svh - var(--header-h));
+    max-width: calc(var(--max) + 2 * var(--gutter));
+    margin: 0 auto;
+    padding-top: 0;
+    padding-bottom: 6svh;
+    pointer-events: none;
+  }
+  .hero {
+    max-width: min(46%, 46rem);
+    pointer-events: auto;
+  }
+}
+
+/* Scrubbed: the scene holds the screen while the drawing explains itself. */
+.opening[data-mode="scrub"] {
+  height: 100svh;
+}
+
+.opening[data-mode="scrub"] .caption {
+  position: absolute;
+  left: max(var(--gutter), calc((100% - var(--max)) / 2));
+  bottom: 14svh;
+  width: min(30rem, 34%);
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+  opacity: 0;
+}
+
+.captionTitle {
+  display: block;
+  font-size: var(--display-2);
+  font-weight: 800;
+  font-variation-settings: "wdth" 112;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+
+:lang(ko) .captionTitle {
+  font-size: var(--display-2-ko);
+  line-height: 1.25;
+}
+
+.captionBody {
+  display: block;
+  margin-top: 1rem;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--fg-soft);
+}
+
+.opening[data-mode="scrub"] .hint {
+  display: block;
+  position: absolute;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  font-size: var(--step--1);
+  color: var(--fg-soft);
+}

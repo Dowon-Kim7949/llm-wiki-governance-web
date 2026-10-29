@@ -1,0 +1,28 @@
+# LLM-WIKI Drift
+
+## Summary
+- run: downgrade
+- evidence.stale: on
+- drifted_verified_docs: 1
+- locator_narrowed: 0
+- downgraded: 1
+- skipped: 0
+- blocked: 0
+
+## Drift (evidence.stale)
+- [warning] evidence.stale docs/llm-wiki/domains/billing.md: Verified document references src/invoice.js, which changed after 2026-10-27; re-review and update it or downgrade to needs_review.
+
+## Downgraded
+- docs/llm-wiki/domains/billing.md: downgrade verified → needs_review; refresh last_updated.
+
+## Skipped
+- none
+
+## Blocked
+- none
+
+## Caveats
+- Downgraded drifted verified documents to needs_review (status + last_updated, plus the tags: status tag when the document already carries one). Re-review and re-verify after updating; nothing else was changed.
+- A file cited only in evidence, and only through line ranges or sections of a Markdown file, is checked region by region: line ranges with git log -L, sections by comparing the repository at the end of the review day with HEAD (committed history only). When the file changed but no cited region did, the citation is listed under locator_narrowed instead of drifting; anything that cannot be compared exactly stays file-level.
+- Documents under docs/llm-wiki/templates/ are out of scope (N-14, 2026-08-06): they are skeletons adopters copy, and review cannot promote or re-stamp them, so flagging them produced findings with no way to clear them.
+exit=0

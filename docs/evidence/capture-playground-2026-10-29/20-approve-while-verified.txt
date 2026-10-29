@@ -1,0 +1,23 @@
+# LLM-WIKI Review
+
+## Summary
+- result: pass
+- mode: approve
+- reviewer: maintainer
+- approved: 0
+- refused: 1
+- needs_review_remaining: 7
+
+## Approved (-> verified)
+- none
+
+## Refused
+- docs/llm-wiki/domains/billing.md: already verified
+
+## Findings
+- none
+
+## Caveats
+- review --approve stamps ONLY the review stamp — status: verified + reviewed_by + reviewed_at, plus the tags: status tag when the document already carries one; it never edits body, source_files, evidence, or last_updated.
+- verified is an explicit decision, never an automatic one: nothing promotes on its own — only --approve/--approve-all stamps — and any doc with blocking/structural findings is refused. Who may run it is your project's policy; reviewed_by records whoever did. Run validate --strict to confirm.
+- Scope: --approve-all covers content documents under docs/llm-wiki only; docs/llm-wiki/templates/ and the append-only log are outside it and are not counted as remaining. Naming one of them explicitly is refused with that reason, not with "not found" (N-14).

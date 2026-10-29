@@ -1,0 +1,30 @@
+# LLM-WIKI Validation
+
+## Summary
+- result: pass
+- strict: false
+- governance_mode: lite
+- project_type: unknown
+- confidence: low
+- active_profiles: core
+- selected_agents: none
+- findings: 0
+
+## Wiki Graph
+- documents: 12
+- wiki_links: 0
+- resolved_wiki_links: 0
+- unresolved_concepts: 0
+- aliases: 0
+- orphan_documents: 4
+- orphans: docs/llm-wiki/ARCHITECTURE_CONVENTIONS.md, docs/llm-wiki/GLOSSARY.md, docs/llm-wiki/domains/billing.md, docs/llm-wiki/domains/shipping.md
+
+## Finding Summary
+- none
+
+## Findings
+- none
+
+## Caveats
+- Validation reuses audit coverage for core, profile, selected-agent adapter, encoding, and sensitive-information checks.
+exit=0

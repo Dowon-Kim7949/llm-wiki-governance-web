@@ -1,0 +1,303 @@
+/*
+ * The exploded view. Plates are laid out in world units (px at zoom 1) and
+ * placed by a CSS matrix from ./render; colours blend from night to paper
+ * with --light, which the renderer sets from WorldState.light.
+ */
+.world {
+  --l: calc(var(--light, 0) * 100%);
+  --w-floor: color-mix(in srgb, #dfe4df var(--l), #10293b);
+  --w-grid: color-mix(in srgb, #c6cfca var(--l), #1d3c55);
+  --w-file: color-mix(in srgb, #f7f9f6 var(--l), #183650);
+  --w-file-ink: color-mix(in srgb, #17232b var(--l), #d6e3ea);
+  --w-file-soft: color-mix(in srgb, #5d6c72 var(--l), #7f9cb1);
+  --w-line: color-mix(in srgb, #46555c var(--l), #7fa6c0);
+  --w-line-dim: color-mix(in srgb, #9aa6a3 var(--l), #2e5069);
+  --w-slab: color-mix(in srgb, #b9c2bd var(--l), #081723);
+  --w-doc: #f4f6f2;
+  --w-doc-ink: #17232b;
+  --w-doc-edge: color-mix(in srgb, #17232b var(--l), #e4edf2);
+  --w-flag: color-mix(in srgb, #b0124f var(--l), #ff6fa3);
+  --w-held: color-mix(in srgb, #2b6146 var(--l), #7fd0a2);
+  --w-pending: #7a5500;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+
+.world[data-ready="true"] {
+  opacity: 1;
+}
+
+.under,
+.over {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.plate {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* The floor: the repository, ruled like drafting film. */
+.floor {
+  background-color: var(--w-floor);
+  background-image:
+    linear-gradient(var(--w-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--w-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+  border: 2px solid var(--w-line-dim);
+}
+
+.slabFloor {
+  fill: var(--w-slab);
+}
+
+.slab {
+  fill: var(--w-slab);
+}
+
+.slabDoc {
+  fill: color-mix(in srgb, #8d9a96 var(--l), #0a1a27);
+}
+
+.ghost {
+  position: absolute;
+  padding: 14px 16px;
+  border: 1.5px solid var(--w-line-dim);
+  color: var(--w-file-soft);
+  font: 500 15px/1 var(--font-code);
+}
+
+.ghost i {
+  display: block;
+  height: 8px;
+  margin-top: 16px;
+  background: var(--w-line-dim);
+  opacity: 0.7;
+}
+
+.ghost i:nth-of-type(2) {
+  width: 70%;
+}
+
+.ghost i:nth-of-type(3) {
+  width: 45%;
+}
+
+.file {
+  background: var(--w-file);
+  border: 2px solid var(--w-line);
+  color: var(--w-file-ink);
+  transition: border-color 200ms ease;
+}
+
+.file[data-moved="on"] {
+  border-color: var(--w-flag);
+}
+
+.file[data-focus="on"] {
+  border-color: var(--w-file-ink);
+  box-shadow: 0 0 0 4px var(--w-file-ink);
+}
+
+.tab {
+  margin: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--w-line-dim);
+  font: 700 16px/1 var(--font-code);
+}
+
+.code {
+  margin: 0;
+  padding: 14px 16px;
+  font: 400 14px/26px var(--font-code);
+  white-space: pre;
+  color: var(--w-file-ink);
+  overflow: hidden;
+}
+
+.code > span {
+  display: block;
+}
+
+.lineSlot {
+  position: relative;
+  height: 26px;
+}
+
+.lineOld,
+.lineNew {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.lineNew {
+  color: var(--w-flag);
+  font-weight: 700;
+}
+
+.file[data-settled="on"] .lineNew {
+  color: var(--w-held);
+}
+
+/* Docs are paper in every light: knowledge laid over the code. */
+.doc {
+  background: var(--w-doc);
+  color: var(--w-doc-ink);
+  border: 2px solid var(--w-doc-edge);
+}
+
+.docHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  padding: 12px 18px;
+  border-bottom: 1px solid #9aa6a3;
+  font: 700 15px/1.2 var(--font-code);
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: #b0124f;
+  color: #ffffff;
+  font: 750 21px/1 var(--font-body);
+  opacity: 0;
+  white-space: nowrap;
+}
+
+.flagIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.front {
+  margin: 0;
+  padding: 14px 18px;
+  font: 400 15px/24px var(--font-code);
+  white-space: pre;
+  color: #33434a;
+}
+
+.swap {
+  display: inline-grid;
+  vertical-align: top;
+}
+
+.swap > * {
+  grid-area: 1 / 1;
+}
+
+.held {
+  color: #2b6146;
+  font-weight: 700;
+}
+
+.pending {
+  color: #7a5500;
+  font-weight: 700;
+}
+
+.seal {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 10px;
+  vertical-align: -2px;
+  color: #2b6146;
+  transform-origin: center;
+}
+
+.sealIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.claim {
+  position: absolute;
+  margin: 0;
+  padding-left: 20px;
+  transform: translateY(-14px);
+  font: 650 20px/1.4 var(--font-body);
+  color: var(--w-doc-ink);
+}
+
+.pin {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--w-doc-ink);
+}
+
+/* Citation lines. The state is also told in captions and status words. */
+.cite {
+  stroke: var(--w-line);
+  stroke-width: 3;
+  fill: none;
+}
+
+/* Each state has its own dash, so it reads without colour. */
+[data-state="draft"] .cite {
+  stroke: var(--w-file-soft);
+  stroke-dasharray: 12 8;
+}
+
+[data-state="held"] .cite {
+  stroke: var(--w-held);
+}
+
+[data-state="lean"] .cite {
+  stroke: var(--w-line);
+  stroke-width: 3;
+  stroke-dasharray: 2 7;
+  stroke-linecap: round;
+}
+
+[data-state="flag"] .cite {
+  stroke: var(--w-flag);
+  stroke-width: 4;
+}
+
+.pulse {
+  stroke: var(--w-flag);
+  stroke-width: 7;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.foot {
+  fill: var(--w-line);
+}
+
+[data-state="held"] .foot {
+  fill: var(--w-held);
+}
+
+[data-state="flag"] .foot {
+  fill: var(--w-flag);
+}
+
+.footprint {
+  fill: none;
+  stroke: var(--w-line-dim);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 6;
+}

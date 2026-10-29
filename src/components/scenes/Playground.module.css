@@ -1,0 +1,280 @@
+/* Scene 03: a workbench. Controls on the left, the drawing and its readout on the right. */
+.playground {
+  position: relative;
+  padding: calc(var(--header-h) + clamp(2.5rem, 1.5rem + 4vw, 5rem)) 0 clamp(3rem, 2rem + 4vw, 6rem);
+  border-top: 1px solid var(--line-dim);
+}
+
+.inner {
+  display: grid;
+  gap: 1.75rem;
+  width: min(100% - 2 * var(--gutter), var(--max));
+  margin-inline: auto;
+}
+
+.heading {
+  font-size: var(--display-2);
+  font-weight: 820;
+  font-variation-settings: "wdth" 116;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+:lang(ko) .heading {
+  font-size: var(--display-2-ko);
+  line-height: 1.2;
+}
+
+.intro {
+  max-width: 36rem;
+  margin-top: 0.9rem;
+  font-size: var(--step-1);
+  color: var(--fg-soft);
+}
+
+.controls {
+  display: grid;
+  gap: 1.5rem;
+  align-content: start;
+}
+
+.group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.legend {
+  margin-bottom: 0.6rem;
+  padding: 0;
+  font-weight: 700;
+}
+
+.files {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.file {
+  position: relative;
+  display: block;
+}
+
+.file input,
+.mode input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.fileBox {
+  display: grid;
+  gap: 0.2rem;
+  min-height: 44px;
+  padding: 0.7rem 0.9rem;
+  border: 2px solid var(--line-dim);
+  border-radius: var(--radius-s);
+}
+
+.file input:checked + .fileBox {
+  border-color: var(--fg);
+  background: var(--night-2);
+}
+
+.file input:checked + .fileBox .path::before {
+  content: "";
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: 0.1em;
+}
+
+.file input:focus-visible + .fileBox,
+.mode input:focus-visible + span {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.path {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.cited {
+  font-size: var(--step--1);
+  color: var(--fg-soft);
+}
+
+.commit {
+  min-width: 12rem;
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mode {
+  position: relative;
+  display: inline-flex;
+}
+
+.mode span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.4rem 0.9rem;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--font-code);
+  font-size: 0.95rem;
+}
+
+.mode input:checked + span {
+  background: var(--fg);
+  border-color: var(--fg);
+  color: var(--night);
+}
+
+.mode input:checked + span::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.modeSummary {
+  margin-top: 0.6rem;
+  font-size: var(--step--1);
+  color: var(--fg-soft);
+}
+
+.disclaimer {
+  padding-left: 0.8rem;
+  border-left: 3px solid var(--pending);
+  font-size: var(--step--1);
+  color: var(--fg-soft);
+}
+
+.bench {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.stage {
+  position: relative;
+  height: clamp(18rem, 52vw, 34rem);
+  border: 1px solid var(--line-dim);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+}
+
+.cites {
+  font-size: var(--step--1);
+  color: var(--fg-soft);
+}
+
+.readout {
+  display: grid;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.gate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.gateIcon {
+  width: 4rem;
+  height: 1.5rem;
+  flex: none;
+}
+
+.gateTrack {
+  stroke: var(--line);
+  stroke-width: 2;
+  fill: none;
+}
+
+.gateArm {
+  stroke: var(--held);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.gateBar {
+  stroke: var(--flag);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.gateWarn {
+  fill: var(--pending);
+}
+
+.gate[data-gate="idle"] .gateArm {
+  stroke: var(--line);
+}
+
+.result {
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.terminalSlot {
+  display: grid;
+  min-height: 19rem;
+}
+
+.terminalSlot :global(pre) {
+  height: 17rem;
+  max-height: none;
+}
+
+.terminalIdle {
+  display: grid;
+  place-items: center;
+  max-width: none;
+  border: 1px dashed var(--line-dim);
+  border-radius: var(--radius-s);
+  color: var(--fg-soft);
+  font-size: var(--step--1);
+}
+
+.next {
+  margin-top: 0.4rem;
+}
+
+.next a {
+  font-weight: 650;
+}
+
+@media (min-width: 64rem) {
+  .inner {
+    grid-template-columns: minmax(0, 0.36fr) minmax(0, 0.64fr);
+    column-gap: clamp(2rem, 4vw, 4rem);
+  }
+  .head {
+    grid-column: 1 / -1;
+  }
+  .stage {
+    height: clamp(24rem, 46vh, 32rem);
+  }
+  .readout {
+    grid-template-columns: auto 1fr;
+    gap: 1.25rem;
+  }
+}

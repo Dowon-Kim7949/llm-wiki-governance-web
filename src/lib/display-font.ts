@@ -8,10 +8,10 @@ import type { Dictionary } from "@/content/types";
  */
 export function displayHeadings(t: Dictionary): string[] {
   return [
-    t.hero.title,
-    t.problem.heading,
-    t.workflow.heading,
-    t.demo.heading,
+    t.opening.title,
+    t.story.heading,
+    t.playground.heading,
+    t.review.heading,
     t.start.heading,
     t.limits.heading,
     t.open.heading,
