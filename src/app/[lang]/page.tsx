@@ -148,6 +148,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
               <tr><th scope="row">{t.footer.baseline}</th><td><code title={PRODUCT.baselineCommit}>{PRODUCT.baselineCommit.slice(0, 7)}</code></td></tr>
               <tr><th scope="row">{t.footer.license}</th><td>{PRODUCT.license}</td></tr>
               <tr><th scope="row">{t.footer.site}</th><td><a href={SITE_REPO}>{t.footer.siteValue}</a></td></tr>
+              <tr><th scope="row">{t.footer.motion}</th><td><a href="https://gsap.com/standard-license">{t.footer.motionValue}</a></td></tr>
             </tbody>
           </table>
           <p className={styles.footNote}>{t.footer.note}</p>

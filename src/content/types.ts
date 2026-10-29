@@ -120,6 +120,8 @@ export type Dictionary = {
     license: string;
     site: string;
     siteValue: string;
+    motion: string;
+    motionValue: string;
     note: string;
   };
 };

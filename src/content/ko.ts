@@ -274,6 +274,8 @@ export const ko: Dictionary = {
     license: "라이선스",
     site: "이 사이트",
     siteValue: "llm-wiki-governance-web, MIT",
+    motion: "모션",
+    motionValue: "GSAP (GreenSock), Standard \"no charge\" 라이선스",
     note: "이 사이트는 제품 저장소와 별개로 관리됩니다. 데모는 설명용 시뮬레이션이며 어떤 저장소에도 연결되지 않습니다.",
   },
 };

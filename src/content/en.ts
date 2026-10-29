@@ -274,6 +274,8 @@ export const en: Dictionary = {
     license: "License",
     site: "This site",
     siteValue: "llm-wiki-governance-web, MIT",
+    motion: "Motion",
+    motionValue: "GSAP (GreenSock), Standard \"no charge\" license",
     note: "This site is maintained separately from the product repository. The demo is an illustrative simulation and is not connected to any repository.",
   },
 };
