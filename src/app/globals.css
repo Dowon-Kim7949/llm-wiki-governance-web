@@ -56,7 +56,7 @@
 /* Phones put the menu on a second header row. */
 @media (max-width: 47.99rem) {
   :root {
-    --header-h: 5.75rem;
+    --header-h: 6rem;
   }
 }
 

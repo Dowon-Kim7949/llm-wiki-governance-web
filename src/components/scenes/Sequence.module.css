@@ -162,7 +162,8 @@
 .sequence[data-mode="scrub"] .stage {
   position: absolute;
   inset: 0;
-  /* Out of the grid, so the drawing spans the whole pinned screen. */
+  /* Out of the grid, so the drawing spans the whole pinned screen, behind the words. */
+  z-index: 0;
   grid-area: auto;
   height: auto;
   background: transparent;
@@ -179,6 +180,7 @@
   grid-column: 1;
   grid-row: 2;
   position: relative;
+  z-index: 1;
   padding: 0;
 }
 

@@ -107,14 +107,14 @@
     gap: 0 1.1rem;
   }
   .nav a {
-    min-height: 40px;
+    min-height: 44px;
     font-size: 0.92rem;
   }
   .headerRow > :global(.lang-switch) {
     margin-left: auto;
-    min-height: 36px;
+    min-height: 44px;
     font-size: 0.9rem;
-    padding: 0.15rem 0.7rem;
+    padding: 0.15rem 0.75rem;
   }
 }
 
