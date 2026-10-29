@@ -197,10 +197,17 @@ def routing_checks(browser) -> None:
     page.goto(f"{SITE}/")
     page.wait_for_url("**/ko/", timeout=10000)
     check("root redirects to /ko/", page.url == f"{SITE}/ko/", page.url)
+    # The reader's path: open the page, pick "Demo" in the menu, then switch
+    # language. A fresh page, because a hash change fired while the previous
+    # redirect's page was still hydrating can be dropped by the router.
+    page.close()
+    page = ctx.new_page()
     logs: list[str] = []
     page.on("console", lambda m: logs.append(f"{m.type}: {m.text}"))
-    page.goto(f"{SITE}/ko/#demo")
+    page.goto(f"{SITE}/ko/")
     page.wait_for_load_state("networkidle")
+    page.locator('header nav a[href="#demo"]').click()
+    page.wait_for_url("**/ko/#demo")
     # The link follows the hash once hydrated; wait for that, as a reader would.
     try:
         page.wait_for_function("document.querySelector('header .lang-switch').getAttribute('href').endsWith('/en/#demo')", timeout=10000)
