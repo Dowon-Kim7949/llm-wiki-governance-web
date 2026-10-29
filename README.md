@@ -33,10 +33,12 @@ SITE_URL=http://localhost:4173 python tests/e2e/run_e2e.py
 
 ```
 src/app/[lang]/     locale root layout + the page (ko, en)
-src/components/     Demo, HeroPlot, CopyButton, LangSwitch, Marker
-src/content/        ko.ts, en.ts (typed dictionaries), demo-transcript.ts (real CLI output)
-scripts/            postbuild (/ and 404), static server, OG image renderer, demo capture
-tests/unit/         content parity and claim checks
+src/components/     scenes/ (opening, story, playground, review), world/ (the exploded-view drawing), CopyButton, LangSwitch
+src/lib/            axo.ts (camera), world.ts (the drawing's geometry and states), playground.ts (impact model), gsap.ts
+src/content/        ko.ts, en.ts (typed dictionaries), transcripts.ts (real CLI output, quoted line for line)
+scripts/            postbuild (/ and 404), static server, OG image renderer, CLI captures (capture-demo.sh, capture-playground.sh)
+docs/evidence/      raw v1.42.0 output the site quotes
+tests/unit/         content parity, claim checks, quoted output and the playground model against the evidence
 tests/e2e/          Playwright browser suite
 docs/               design, product claims, testing, deployment
 ```

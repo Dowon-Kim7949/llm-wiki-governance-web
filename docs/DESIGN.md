@@ -6,9 +6,21 @@ The official site for [LLM-WIKI Governance](https://github.com/Dowon-Kim7949/llm
 
 Starting concept from the brief: *Traceable Knowledge*. Process followed: Anthropic's `frontend-design` skill (two passes: token plan, review against generic defaults, then build and critique with screenshots). For the first release the skill was read from `anthropics/skills` and its process followed by hand. The second pass (2026-10-29, logged below) ran with the skill loaded from the `example-skills` plugin.
 
-## Three directions
+## Current direction: Exploded view (immersive redesign)
 
-### A. Survey Record (selected)
+Branch `design/immersive-redesign`. The reviewer rejected the first release as a long technical document and asked for a motion-driven product microsite. The concept comparison, the reference-video analysis and the scene-by-scene storyboard are in [STORYBOARD.md](STORYBOARD.md); this section records the system that came out of it.
+
+- **One drawing.** The demo repository of `scripts/capture-playground.sh` drawn as an exploded axonometric view: source files on the floor, docs as paper plates above, each citation a vertical line from a doc down to the file it cites. A changed file shifts and every line hanging from it leans; review re-hangs the line. Every scene shows this same drawing from a different camera.
+- **Two lights.** Night (`#0f2536`, plates `#16324a`, linework `#7fa6c0`, ink `#e4edf2`) is the system: code, change, checks. Paper (`#e8ebe6`, ink `#17232b`) is the person: reading, judging, using. Docs are paper in every light. The review scene turns the page from night to paper; readers who ask for dark pages get paper at dusk (`#24333d`).
+- **Status.** Word + line dash + colour: draft lines dashed, verified lines solid green, a moved file's lines dotted, a flagged line solid magenta, plus the doc's status word and a flag with a word.
+- **Type.** Archivo at width 110–118 and weight 820+ for titles (`--display-1/2/3`, a Korean size each), normal width for text; the IBM Plex Sans KR subset for Korean h1/h2; system mono for code. Titles are left-aligned and never break inside a word.
+- **Camera.** `src/lib/axo.ts` is an orthographic camera (tilt, yaw, zoom, centre, lift). Each plate is HTML placed with one CSS `matrix()`, citation lines are SVG, so a frame costs a dozen transforms and no layout. `src/components/world/render.ts` draws a numeric `WorldState`; the same state always gives the same picture.
+- **Motion.** GSAP ScrollTrigger pins and scrubs the opening, story and review on wide screens with motion allowed; everything else gets discrete beats over a sticky drawing. `useGSAP` with `gsap.matchMedia()` builds and reverts each mode. One unprompted moment: the opening drawing assembles on load.
+- **Loading.** Text and controls ship in the first load. Drawings, GSAP and the scene motion load after the `load` event, when the browser is idle (`src/components/scenes/Motion.tsx`), so the first paint lays out text only.
+
+## First release direction (kept as history)
+
+### A. Survey Record (selected for the first release)
 
 - **Thesis.** A land survey does not prove the map is right. It records measurements against fixed benchmarks, and when a benchmark is disturbed, the affected stations are re-surveyed. That is exactly the product: a doc (station) records which source it was measured against (benchmark, via a citation), an explicit review stamps it, and a source change flags it for another survey. It never claims the doc is true.
 - **Type.** One variable family, Archivo, with its width axis doing the display work (wide, heavy headlines like drawing lettering; normal width for text). Korean h1/h2 lines are set in IBM Plex Sans KR Bold, an engineering face that matches the drawing lettering, cut to the 52 Hangul glyphs those lines use (14.6 KB, preloaded on the Korean page only, never requested by the English page). All other Korean text uses the platform's Korean UI face (Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR).
@@ -34,7 +46,7 @@ Starting concept from the brief: *Traceable Knowledge*. Process followed: Anthro
 
 A is the only direction whose core metaphor is honest about the limit: a survey measures against references and asks for a re-survey, it does not certify the territory. It gives the signature interaction (a benchmark moves, a line is flagged, depending on the governance mode) a natural visual form, and it avoids the three generic looks named in the skill.
 
-## Tokens
+## First release tokens
 
 Defined in `src/app/globals.css` (`:root`, plus a dark-mode block):
 
@@ -52,7 +64,7 @@ Defined in `src/app/globals.css` (`:root`, plus a dark-mode block):
 
 Type scale: ratio 1.25 from 17px (`--step--1` … `--step-4`, the last fluid). Spacing uses `--gutter` (fluid 1–2.5rem). Radii: 3px for controls, 10px for the two framed drawings, pills only for tags and toggles.
 
-## Components
+## First release components
 
 | Component | Kind | Notes |
 | --- | --- | --- |
@@ -79,3 +91,14 @@ Content lives in typed dictionaries (`src/content/types.ts`), so a missing trans
 - The hero opened with a "LLM-WIKI Governance" label directly under the identical wordmark: a label above content that said nothing new. Removed.
 - At 768px the hero drawing stretched to the full column and became a second screen. Capped at 34rem below the two-column breakpoint.
 - Considered and not done: pushing the Survey Record metaphor further into the hero and demo. The drawing already carries it in one place; adding more would spend boldness twice.
+- Immersive redesign (branch `design/immersive-redesign`), `frontend-design` skill loaded as a plugin. The reviewer's verdict on the first release was that it read as a manual. Three directions were drawn up (exploded view, registration, signal trace; see STORYBOARD.md); the first plan for the exploded view was "nodes joined by curved glowing lines on dark", which is the default AI-tool picture, so lines became straight verticals and nodes became real files and docs.
+- The first story camera was so close that the doc covered its own citation line, which then showed only as a stub; the lean, the one thing the scene is about, was invisible. The camera moved back and the plates were lifted further apart.
+- The first build coloured every line of a flagged doc magenta, including billing.md's line to shipping.js, which had not changed. impact names the changed file, so only the lines to the changed file turn into flags now.
+- Phones showed empty drawings: `gsap.matchMedia()` runs a callback only while one of its conditions matches, and a phone with motion allowed matched none. An always-true condition fixed it; an e2e check now asserts every drawing renders on a phone.
+- The playground's terminal appeared on the first commit and pushed the page 400 px down, so the review scene below pinned at the wrong place. The terminal keeps its space while idle, and any later height change refreshes ScrollTrigger.
+- Re-review was first drawn as billing.md sliding over the moved file. billing.md also cites shipping.js, so that tilted a second line. Now only the rewritten claim's pin moves, which is also what happens: the sentence changed, not the whole doc.
+- The review scene mixed its background from night to paper across five beats and passed through grey mud with unreadable captions. The drawing now lightens beat by beat; the page itself turns to paper only on the last beat, and the captions sit on paper cards throughout.
+- Lighthouse on mobile put the redesign 10 points behind main at first. The four drawings were in the server HTML with layered plates, and GSAP shipped in the first load. Drawings and motion now load after `load`; the first load is within 3 KB of main and, in a throttled real browser, the lede paints at the same time as on main. Lighthouse's simulated mobile LCP still trails by 0.3–0.6 s (TESTING.md).
+- English titles broke inside words at 1920 px ("change / s") because display type inherited `overflow-wrap: break-word`. Titles wrap between words only.
+- The production build strips GSAP's banner comment; the GSAP licence forbids removing its notices, so the footer's title block names GSAP and links its licence.
+- Considered and not done: a continuous camera "dive" from the opening into the story (the opening ends on a flagged doc and the story starts from a draft, so a continuous shot would play time backwards), a custom cursor, and a chapter rail.
