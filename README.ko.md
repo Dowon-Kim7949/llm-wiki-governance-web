@@ -40,4 +40,4 @@ SITE_URL=http://localhost:4173 python tests/e2e/run_e2e.py
 
 ## 라이선스
 
-웹사이트 코드는 MIT([LICENSE](LICENSE))입니다. 글꼴 Archivo는 SIL Open Font License 1.1이며 빌드 시 `next/font`가 자체 호스팅합니다. 그래픽은 모두 코드로 그린 자체 SVG입니다. 자세한 내용은 [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md)에 있습니다.
+웹사이트 코드는 MIT([LICENSE](LICENSE))입니다. 글꼴은 두 가지이며 모두 SIL Open Font License 1.1입니다. Archivo는 빌드 시 `next/font`가 자체 호스팅합니다. 한국어 제목에는 IBM Plex Sans KR Bold에서 한글 글리프만 잘라 낸 subset을 쓰고, 라이선스 조건에 따라 이름을 바꿨습니다. 그래픽은 모두 코드로 그린 자체 SVG입니다. 자세한 내용은 [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md)에 있습니다.

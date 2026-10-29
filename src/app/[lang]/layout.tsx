@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo } from "next/font/google";
 import { notFound } from "next/navigation";
+import { preload } from "react-dom";
 import { getDictionary } from "@/content";
 import { LOCALES, PRODUCT, SITE_URL, asset, isLocale, pageUrl } from "@/lib/site";
 import "../globals.css";
@@ -12,6 +13,13 @@ const archivo = Archivo({
   display: "swap",
   variable: "--font-archivo",
 });
+
+// Korean h1/h2 lettering: a 52-glyph cut of IBM Plex Sans KR Bold
+// (scripts/subset-display-ko.py). Declared here rather than with next/font so
+// that only the Korean page preloads it; the Hangul unicode-range keeps the
+// English page from requesting it at all.
+const DISPLAY_KO = asset("/fonts/display-ko-bold.woff2");
+const DISPLAY_KO_FACE = `@font-face{font-family:"LLM-WIKI Display KR";src:url(${DISPLAY_KO}) format("woff2");font-weight:700;font-display:swap;unicode-range:U+1100-11FF,U+3130-318F,U+AC00-D7A3}`;
 
 export const dynamicParams = false;
 
@@ -65,8 +73,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 export default async function LocaleLayout({ children, params }: Params & { children: React.ReactNode }) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
+  if (lang === "ko") preload(DISPLAY_KO, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   return (
     <html lang={lang} className={archivo.variable}>
+      <head>
+        <style>{DISPLAY_KO_FACE}</style>
+      </head>
       <body>{children}</body>
     </html>
   );

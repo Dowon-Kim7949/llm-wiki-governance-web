@@ -21,6 +21,7 @@
 
   --font-display: var(--font-archivo), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
   --font-body: var(--font-archivo), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  --font-headline: var(--font-archivo), "LLM-WIKI Display KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
   --font-code: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, "D2Coding", monospace;
 
   /* Modular scale, ratio 1.25 from 17px */
@@ -142,6 +143,11 @@ h3 {
   line-height: 1.12;
   margin: 0;
   text-wrap: balance;
+}
+
+h1,
+h2 {
+  font-family: var(--font-headline);
 }
 
 h2 {

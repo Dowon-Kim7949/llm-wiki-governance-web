@@ -58,6 +58,21 @@
   text-decoration: underline;
 }
 
+.headerRow > :global(.lang-switch) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.3rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.headerRow > :global(.lang-switch):hover {
+  background: var(--paper-raised);
+}
+
 @media (max-width: 47.99rem) {
   .headerRow {
     gap: 0 0.75rem;
@@ -99,19 +114,14 @@
   }
 }
 
-.headerRow > :global(.lang-switch) {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0.3rem 0.9rem;
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  font-weight: 650;
-  text-decoration: none;
-}
-
-.headerRow > :global(.lang-switch):hover {
-  background: var(--paper-raised);
+/* Below 360px the four English menu items need a tighter set to stay on one row. */
+@media (max-width: 22.49rem) {
+  .nav ul {
+    gap: 0 0.75rem;
+  }
+  .nav a {
+    font-size: 0.9rem;
+  }
 }
 
 /* Hero */
@@ -131,15 +141,8 @@
   }
 }
 
-.productName {
-  font-weight: 700;
-  font-variation-settings: "wdth" 118;
-  color: var(--ink-soft);
-}
-
 /* The headline is the drawing's lettering: wide, heavy, tightly set. */
 .heroTitle {
-  margin-top: 1rem;
   font-size: var(--step-4);
   font-weight: 820;
   font-variation-settings: "wdth" 116;
@@ -150,8 +153,12 @@
 
 :lang(ko) .heroTitle {
   max-width: 15em;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
   line-height: 1.18;
+}
+
+:lang(ko) .clause {
+  display: inline-block;
 }
 
 .lede {
@@ -187,6 +194,13 @@
 
 .hero :global(.hero-plot) {
   margin: 0;
+}
+
+/* Stacked below the text, the drawing is a figure, not a second screen. */
+@media (max-width: 63.99rem) {
+  .hero :global(.hero-plot) {
+    max-width: 34rem;
+  }
 }
 
 .hero :global(.hero-plot) svg {

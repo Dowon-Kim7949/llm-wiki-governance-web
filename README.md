@@ -50,4 +50,4 @@ docs/               design, product claims, testing, deployment
 
 ## Licence
 
-Website code: MIT ([LICENSE](LICENSE)). Font: Archivo, SIL Open Font License 1.1, self-hosted at build time by `next/font`. All graphics are original SVG drawn in code. See [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
+Website code: MIT ([LICENSE](LICENSE)). Fonts: Archivo, self-hosted at build time by `next/font`, and a Hangul subset of IBM Plex Sans KR Bold for Korean headings, renamed as the licence requires; both SIL Open Font License 1.1. All graphics are original SVG drawn in code. See [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).

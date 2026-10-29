@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/content";
 import { CopyButton } from "@/components/CopyButton";
@@ -43,8 +44,12 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
         <section id="top" className={styles.hero} aria-labelledby="hero-title">
           <div className={`wrap ${styles.heroGrid}`}>
             <div className={styles.heroText}>
-              <p className={styles.productName}>{PRODUCT.name}</p>
-              <h1 id="hero-title" className={styles.heroTitle}>{t.hero.title}</h1>
+              <h1 id="hero-title" className={styles.heroTitle}>
+                {/* Clauses as units, so Korean lines break between them, not inside. */}
+                {t.hero.title.split(/(?<=,) /).map((clause, i) => (
+                  <Fragment key={i}>{i > 0 && " "}<span className={styles.clause}>{clause}</span></Fragment>
+                ))}
+              </h1>
               <p className={styles.lede}>{t.hero.lede}</p>
               <div className={styles.actions}>
                 <a className="btn btn-primary" href="#start">{t.hero.primary}</a>
