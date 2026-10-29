@@ -27,6 +27,22 @@ The browser suite follows the reconnaissance-then-action pattern of Anthropic's 
 
 CI (`.github/workflows/pages.yml`) runs everything on every pull request and push, then repeats the browser suite against the live GitHub Pages URL after each deploy.
 
+## Lighthouse
+
+Lighthouse is run by hand, not in CI. Scores are Performance / Accessibility / Best practices / SEO.
+
+- **First release** (2026-10-29): Korean mobile 96/100/100/100, English mobile 98, desktop 100. Conditions were not recorded.
+- **Second pass** (2026-10-29): Lighthouse CLI 12.8.2, headless Chromium 141 (Playwright build 1194), default mobile preset (simulated slow 4G, 4× CPU) and `--preset=desktop`, on the live GitHub Pages URL from a Windows 11 laptop. Three runs before deploying `0d6b1d8` and three after, alternating pages. The PageSpeed Insights API was not available (anonymous daily quota exhausted).
+
+| Page | Before: Performance (3 runs) | After: Performance (3 runs) | LCP median, before → after | CLS |
+| --- | --- | --- | --- | --- |
+| `/ko/` mobile | 80, 85, 85 | 96, 86, 93 | 2.37 s → 2.47 s | 0 → 0 |
+| `/en/` mobile | 74, 80, 67 | 97, 93, 95 | 2.34 s → 2.23 s | 0–0.025 → 0 |
+| `/ko/` desktop | 100, 93, 97 | 100, 100, 100 | 0.64 s → 0.72 s | 0 → 0 |
+| `/en/` desktop | 100, 80, 100 | 100, 100, 100 | 0.50 s → 0.51 s | 0–0.019 → 0 |
+
+Accessibility, Best practices and SEO were 100 in every run, except one pre-deploy English desktop run that scored SEO 92. The Performance score on this machine is driven by Total Blocking Time, which swung from 0 to 2.7 s with background load (most "before" runs were the busier ones). So read the change from LCP and CLS, not from the score. The Korean display face (14.6 KB, preloaded on `/ko/` only) moved the Korean LCP median by about +0.1 s, within run-to-run spread, with no layout shift. The LCP element on mobile is the hero lede paragraph, not the headline. Local runs against `npm run serve` are not comparable: that server does not compress, so it sends 665 KB where Pages sends 251 KB.
+
 ## Accessibility decisions
 
 - States are never colour-only: each has a shape (open ring, triangle, flag, struck triangle) and a word.
