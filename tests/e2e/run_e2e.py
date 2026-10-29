@@ -197,10 +197,16 @@ def routing_checks(browser) -> None:
     page.goto(f"{SITE}/")
     page.wait_for_url("**/ko/", timeout=10000)
     check("root redirects to /ko/", page.url == f"{SITE}/ko/", page.url)
+    logs: list[str] = []
+    page.on("console", lambda m: logs.append(f"{m.type}: {m.text}"))
     page.goto(f"{SITE}/ko/#demo")
     page.wait_for_load_state("networkidle")
     # The link follows the hash once hydrated; wait for that, as a reader would.
-    page.wait_for_function("document.querySelector('header .lang-switch').getAttribute('href').endsWith('/en/#demo')", timeout=10000)
+    try:
+        page.wait_for_function("document.querySelector('header .lang-switch').getAttribute('href').endsWith('/en/#demo')", timeout=10000)
+    except Exception:  # report what the page actually holds instead of a bare timeout
+        state = page.evaluate("({href: document.querySelector('header .lang-switch').getAttribute('href'), url: location.href})")
+        check("language switch follows the hash", False, f"{state} console={logs[:5]}")
     page.locator("header .lang-switch").click()
     page.wait_for_url("**/en/**", timeout=10000)
     page.wait_for_timeout(300)
