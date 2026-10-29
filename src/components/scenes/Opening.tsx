@@ -2,27 +2,22 @@
 
 import { Fragment, useRef } from "react";
 import type { Dictionary } from "@/content/types";
-import { World } from "../world/World";
 import { OPENING, OPENING_INTRO } from "./beats";
-import { useSequence } from "./useSequence";
+import { SequenceMotion } from "./Motion";
 import styles from "./Opening.module.css";
+
+// The drawing sits right of the headline on wide screens, under it elsewhere.
+const openingFrame = (w: number, h: number, wide: boolean) =>
+  wide ? { x: w * 0.42, y: h * 0.12, w: w * 0.56, h: h * 0.84 } : { x: w * 0.02, y: h * 0.02, w: w * 0.96, h: h * 0.96 };
 
 /** Scene 01. The page's only unprompted motion is the load moment here. */
 export function Opening({ t }: { t: Dictionary }) {
   const section = useRef<HTMLElement>(null);
-  const world = useRef<HTMLDivElement>(null);
-  useSequence({
-    section,
-    world,
-    beats: OPENING,
-    intro: OPENING_INTRO,
-    frame: (w, h, wide) => (wide ? { x: w * 0.42, y: h * 0.12, w: w * 0.56, h: h * 0.84 } : { x: w * 0.02, y: h * 0.02, w: w * 0.96, h: h * 0.96 }),
-  });
 
   return (
     <section id="top" ref={section} className={`${styles.opening} env-night`} aria-labelledby="hero-title">
       <div className={styles.stage}>
-        <World ref={world} t={t.world} />
+        <SequenceMotion t={t.world} section={section} beats={OPENING} intro={OPENING_INTRO} frame={openingFrame} />
       </div>
       <div className={styles.copy}>
         <div className={styles.hero} data-beat="0">

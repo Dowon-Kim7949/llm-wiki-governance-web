@@ -9,7 +9,7 @@ import { createRenderer } from "../world/render";
 /** A beat is reached through one or more phases, played in order. */
 export type Phased = WorldState[];
 
-type Options = {
+export type SequenceOptions = {
   section: RefObject<HTMLElement | null>;
   world: RefObject<HTMLDivElement | null>;
   beats: Phased[];
@@ -33,7 +33,7 @@ const last = (p: Phased) => p[p.length - 1];
  *   drawing moves to a caption's beat when that caption reaches the middle of
  *   the screen; under reduced motion it changes instantly.
  */
-export function useSequence({ section, world, beats, frame, intro }: Options) {
+export function useSequence({ section, world, beats, frame, intro }: SequenceOptions) {
   useGSAP(
     () => {
       const sec = section.current;
@@ -59,7 +59,7 @@ export function useSequence({ section, world, beats, frame, intro }: Options) {
         let introTween: gsap.core.Tween | undefined;
         if (intro && !reduce) {
           Object.assign(st, intro);
-          introTween = gsap.to(st, { ...last(beats[0]), duration: 1.6, delay: 0.25, ease: "power2.inOut", onUpdate: draw });
+          introTween = gsap.to(st, { ...last(beats[0]), duration: 1.1, ease: "power2.inOut", onUpdate: draw });
         }
         draw();
 

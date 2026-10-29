@@ -2,8 +2,8 @@
 
 import { useRef, type ReactNode } from "react";
 import type { Beat, Dictionary } from "@/content/types";
-import { World } from "../world/World";
-import { useSequence, type Phased } from "./useSequence";
+import { SequenceMotion } from "./Motion";
+import type { Phased } from "./useSequence";
 import styles from "./Sequence.module.css";
 
 type Props = {
@@ -20,16 +20,12 @@ type Props = {
   light?: "night" | "dawn";
 };
 
+const sequenceFrame = (w: number, h: number, wide: boolean) =>
+  wide ? { x: w * 0.38, y: h * 0.1, w: w * 0.6, h: h * 0.84 } : { x: 0, y: h * 0.04, w, h: h * 0.92 };
+
 /** Scenes 02 and 04: a heading, numbered beats, and the drawing they move. */
 export function Sequence({ id, t, heading, intro, stepOf, beats, states, details = [], light = "night" }: Props) {
   const section = useRef<HTMLElement>(null);
-  const world = useRef<HTMLDivElement>(null);
-  useSequence({
-    section,
-    world,
-    beats: states,
-    frame: (w, h, wide) => (wide ? { x: w * 0.38, y: h * 0.1, w: w * 0.6, h: h * 0.84 } : { x: 0, y: h * 0.04, w, h: h * 0.92 }),
-  });
   const total = String(beats.length);
 
   return (
@@ -39,7 +35,7 @@ export function Sequence({ id, t, heading, intro, stepOf, beats, states, details
         <p className={styles.intro}>{intro}</p>
       </header>
       <div className={styles.stage}>
-        <World ref={world} t={t.world} />
+        <SequenceMotion t={t.world} section={section} beats={states} frame={sequenceFrame} />
       </div>
       <ol className={styles.beats}>
         {beats.map((b, i) => (

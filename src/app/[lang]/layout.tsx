@@ -28,10 +28,8 @@ export function generateStaticParams() {
 }
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#e8ebe6" },
-    { media: "(prefers-color-scheme: dark)", color: "#121a1f" },
-  ],
+  // The header is a night bar in every scene.
+  themeColor: "#0f2536",
 };
 
 type Params = { params: Promise<{ lang: string }> };

@@ -3,11 +3,9 @@
 import { useId, useRef, useState } from "react";
 import type { Dictionary, DocId, FileId, Mode } from "@/content/types";
 import { TRANSCRIPTS } from "@/content/transcripts";
-import { MEDIA, gsap, useGSAP } from "@/lib/gsap";
 import { outcome } from "@/lib/playground";
-import { CAMERAS, FILES, state, type WorldState } from "@/lib/world";
-import { World } from "../world/World";
-import { createRenderer, type Renderer } from "../world/render";
+import { FILES } from "@/lib/world";
+import { PlaygroundMotion } from "./Motion";
 import { Terminal } from "./Terminal";
 import styles from "./Playground.module.css";
 
@@ -15,78 +13,19 @@ const FILE_IDS = Object.keys(FILES) as FileId[];
 const MODES: Mode[] = ["lite", "standard", "strict"];
 const DOC_NAME: Record<DocId, string> = { billing: "billing.md", shipping: "shipping.md" };
 
-function target(file: FileId, committed: boolean, flagged: DocId[]): WorldState {
-  const on = (id: FileId) => (file === id ? 1 : 0);
-  const moved = (id: FileId) => (committed && file === id ? 1 : 0);
-  return state({
-    ...CAMERAS.bench,
-    focusInvoice: on("invoice"),
-    focusShipping: on("shipping"),
-    focusFormat: on("format"),
-    dim: 0.6,
-    movedInvoice: moved("invoice"),
-    movedShipping: moved("shipping"),
-    movedFormat: moved("format"),
-    flagBilling: flagged.includes("billing") ? 1 : 0,
-    flagShipping: flagged.includes("shipping") ? 1 : 0,
-  });
-}
-
 /**
  * Scene 03, the signature interaction. Everything shown is a pure function of
- * (file, committed, mode); the drawing tweens toward it, so rapid input can
- * only ever land on the state the controls show.
+ * (file, committed, mode); the drawing (./PlaygroundMotion) tweens toward it,
+ * so rapid input can only ever land on the state the controls show.
  */
 export function Playground({ t }: { t: Dictionary }) {
   const p = t.playground;
   const ids = useId();
   const section = useRef<HTMLElement>(null);
-  const world = useRef<HTMLDivElement>(null);
-  const renderer = useRef<Renderer | null>(null);
-  const st = useRef<WorldState>(target("invoice", false, []));
   const [file, setFile] = useState<FileId>("invoice");
   const [committed, setCommitted] = useState(false);
   const [mode, setMode] = useState<Mode>("lite");
   const o = outcome(file, committed, mode);
-
-  useGSAP(
-    () => {
-      const root = world.current;
-      if (!root) return;
-      const r = createRenderer(root, (w, h) => ({ x: 0, y: h * 0.02, w, h: h * 0.96 }));
-      renderer.current = r;
-      r.render(st.current);
-      const ro = new ResizeObserver(() => r.resize());
-      ro.observe(root);
-      return () => ro.disconnect();
-    },
-    { scope: section },
-  );
-
-  useGSAP(
-    () => {
-      const r = renderer.current;
-      if (!r) return;
-      const s = st.current;
-      const goal = target(file, committed, o.flagged);
-      const draw = () => r.render(s);
-      const reduce = window.matchMedia(MEDIA.reduce).matches;
-      const { flagBilling, flagShipping, ...rest } = goal;
-      const tl = gsap.timeline({ onUpdate: draw, defaults: { ease: "power2.inOut", overwrite: "auto" } });
-      tl.to(s, { ...rest, duration: 0.6 }, 0);
-      const raising = (flagBilling > s.flagBilling || flagShipping > s.flagShipping) && o.flagged.length > 0;
-      if (raising) {
-        // The check climbs every line hanging from the changed file, then the docs are flagged.
-        const pulse = file === "invoice" ? "pulseInvoice" : "pulseShipping";
-        tl.fromTo(s, { [pulse]: 0 }, { [pulse]: 1, duration: 0.7, ease: "none" }, 0.45);
-        tl.to(s, { flagBilling, flagShipping, duration: 0.3 }, 1.1);
-      } else {
-        tl.to(s, { flagBilling, flagShipping, duration: 0.3 }, 0);
-      }
-      if (reduce) tl.progress(1);
-    },
-    { scope: section, dependencies: [file, committed, mode], revertOnUpdate: false },
-  );
 
   const docs = (list: DocId[]) => (list.length ? list.map((d) => DOC_NAME[d]).join(p.and) : p.none);
   const result = !committed
@@ -146,7 +85,7 @@ export function Playground({ t }: { t: Dictionary }) {
 
         <div className={styles.bench}>
           <div className={styles.stage}>
-            <World ref={world} t={t.world} />
+            <PlaygroundMotion t={t.world} scope={section} file={file} committed={committed} flagged={o.flagged} />
           </div>
           <p className={styles.cites}>{p.cites.replace("{docs}", docs(o.cites))}</p>
           <div className={styles.readout}>
