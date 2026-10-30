@@ -413,3 +413,22 @@
     font-size: 36px;
   }
 }
+
+.start h2:lang(ko),
+.referenceIntro h2:lang(ko),
+.ending h2:lang(ko) {
+  font-family: var(--font-jalnan), var(--font-body);
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+.start h2:lang(ko) {
+  font-size: clamp(32px, 3.7vw, 88px);
+}
+.referenceIntro h2:lang(ko) {
+  font-size: clamp(30px, 2.7vw, 68px);
+}
+.ending h2:lang(ko) {
+  font-size: clamp(32px, 3.6vw, 100px);
+}

@@ -46,6 +46,7 @@ docs/               design, product claims, testing, deployment
 ## Docs
 
 - [Current stage redesign](docs/STAGE_REDESIGN_2026-10-30.md): architecture, recording observations, six scenes and verification
+- [Typography and responsive refinement](docs/TYPOGRAPHY_2026-10-30.md): Jalnan Gothic provenance, layout measurements and before/after verification
 - [Previous visual redesign](docs/REDESIGN_2026-10-30.md): historical asset direction and prompt
 - [Earlier design](docs/DESIGN.md): historical brief and directions
 - [Product claims](docs/PRODUCT_CLAIMS.md): every factual claim and how it was verified
@@ -54,4 +55,4 @@ docs/               design, product claims, testing, deployment
 
 ## Licence
 
-Website code: MIT ([LICENSE](LICENSE)). The current page uses Archivo (SIL Open Font License 1.1), self-hosted at build time by `next/font`, and system Korean fonts. The previous IBM Plex Sans KR subset is retained as a legacy asset. The main sculpture is an original generated bitmap; interface icons are SVG. See [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
+Website code: MIT ([LICENSE](LICENSE)). Korean display headings use the official, unmodified Jalnan Gothic Regular under GC COMPANY's font licence; its copyright notice and complete usage guide ship in `public/fonts/`. Body text and English retain Archivo (OFL-1.1) and system Korean fonts. Fonts are self-hosted by `next/font`. The previous IBM Plex Sans KR subset is retained as a legacy asset. The main sculpture is an original generated bitmap; interface icons are SVG. See [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).

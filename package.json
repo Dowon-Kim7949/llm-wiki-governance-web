@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --no-warnings --test tests/unit/*.test.ts",
     "test:e2e": "python tests/e2e/stage.py",
+    "test:layout": "python tests/e2e/typography.py",
     "serve": "node scripts/serve-out.mjs"
   },
   "dependencies": {

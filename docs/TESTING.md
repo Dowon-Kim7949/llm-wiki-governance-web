@@ -1,6 +1,6 @@
 ﻿# Testing and accessibility - persistent viewport stage
 
-The current architecture is documented in [STAGE_REDESIGN_2026-10-30.md](STAGE_REDESIGN_2026-10-30.md). The earlier REDESIGN report describes the previous vertical landing page, not this implementation.
+The current architecture is documented in [STAGE_REDESIGN_2026-10-30.md](STAGE_REDESIGN_2026-10-30.md). The subsequent [typography and responsive refinement](TYPOGRAPHY_2026-10-30.md) adds Jalnan Gothic and shared layout regions. The earlier REDESIGN report describes the previous vertical landing page, not this implementation.
 
 ## Reproduce
 
@@ -12,6 +12,7 @@ npm run build
 npm run serve
 # In another terminal:
 npm run test:e2e
+npm run test:layout
 python tests/e2e/record_transitions.py
 ```
 
@@ -33,6 +34,8 @@ Coverage includes:
 - axe-core A/AA and best-practice checks in change, review, open-reference and reduced-motion states.
 - Both languages at 1440x900, 1280x800, 1366x768, 1920x1080, 2560x1440, 3840x2160, ultrawide 3440x1440, 390x844, 360x800 and 320x640. Chapter boundaries, headline/graphic separation and the fully expanded reference area are inspected for overflow. Mobile screenshot pixels also check that the source expression actually paints.
 - Mid-story resize across desktop/mobile breakpoints preserving the edited state. Reduced-motion preference at initial load and while running, manual reader switching, and complete no-JavaScript fallback.
+
+The additional `tests/e2e/typography.py` suite reports **93/93 passing checks**. It measures actual rendered collisions, essential-content clearance and line attachments in both locales, including 1920x700, repeated chapter navigation, direct Evidence/Review URLs, both language-switch directions, cold font loading and intermediate/reverse transitions. CDP verifies Jalnan Gothic glyph rendering at weight 400, and the English route makes no Korean-font request. Artifacts are in `test-results/typography/`.
 
 ## Rendered review and artifacts
 

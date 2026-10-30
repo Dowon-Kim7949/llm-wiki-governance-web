@@ -1,0 +1,19 @@
+Jalnan Gothic / 여기어때 잘난체 고딕
+Copyright © GC COMPANY All rights reserved. Font Designed by Sandoll Inc.
+
+Official source: https://gccompany.co.kr/font#download
+Official font package: https://framerusercontent.com/assets/nDlVcfwW7fVXLTZeKX4WdTVY1Yk.zip
+Downloaded: 2026-10-30
+
+This site embeds the original, unmodified JalnanGothic.otf (Regular, weight 400).
+The font is not covered by this website's MIT licence.
+
+The complete official usage guide, including the copyright notice and licence,
+is distributed alongside this notice as JalnanGothic-Guide.pdf (licence: PDF page 3).
+Official guide: https://drive.google.com/file/d/1TFGKe-QLRnx2IHpJO3ZH3pVUYjQwMx7L/view
+
+The guide permits free personal/corporate and commercial use and embedding or
+bundling with software when the copyright notice and full licence are included.
+It prohibits selling the font separately and arbitrary modification/remanufacture
+and redistribution. No conversion, subsetting, outline or font-metadata changes
+were made here. Consult the included official guide for the full terms.

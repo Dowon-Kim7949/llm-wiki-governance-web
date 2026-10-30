@@ -32,6 +32,7 @@ SITE_URL=http://localhost:4173 python tests/e2e/run_e2e.py
 ## 문서
 
 - [현재 무대 리디자인](docs/STAGE_REDESIGN_2026-10-30.md): 영상 관찰, 구조, 여섯 장면과 검증
+- [서체·반응형 보정](docs/TYPOGRAPHY_2026-10-30.md): 잘난체 고딕 출처, 배치 측정과 전후 검증
 - [이전 디자인](docs/DESIGN.md): 과거 브리프와 방향
 - [제품 주장 근거](docs/PRODUCT_CLAIMS.md): 사이트의 사실 주장과 검증 방법
 - [테스트와 접근성](docs/TESTING.md)
@@ -41,4 +42,4 @@ SITE_URL=http://localhost:4173 python tests/e2e/run_e2e.py
 
 ## 라이선스
 
-웹사이트 코드는 MIT([LICENSE](LICENSE))입니다. 현재 화면은 빌드 시 자체 호스팅하는 Archivo(OFL-1.1)와 시스템 한국어 글꼴을 사용합니다. 이전 IBM Plex Sans KR 서브셋은 기존 자산으로 보존합니다. 크롬·코발트 연결 조형은 이미지 생성 도구로 제작했고, 인터페이스 아이콘은 SVG입니다. [리디자인 기록](docs/REDESIGN_2026-10-30.md)에 영상 분석과 이미지 프롬프트가 있으며, 라이선스 정보는 [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md)에 있습니다.
+웹사이트 코드는 MIT([LICENSE](LICENSE))입니다. 한국어 큰 제목은 GC COMPANY 라이선스의 잘난체 고딕 Regular 원본을 사용하며, 저작권 안내와 공식 사용 가이드를 `public/fonts/`에 동봉합니다. 본문·영어는 Archivo(OFL-1.1)와 시스템 한국어 글꼴을 유지합니다. 글꼴은 `next/font`로 자체 호스팅합니다. 이전 IBM Plex Sans KR 서브셋은 기존 자산으로 보존합니다. 크롬·코발트 연결 조형은 이미지 생성 도구로 제작했고, 인터페이스 아이콘은 SVG입니다. [리디자인 기록](docs/REDESIGN_2026-10-30.md)에 영상 분석과 이미지 프롬프트가 있으며, 라이선스 정보는 [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md)에 있습니다.

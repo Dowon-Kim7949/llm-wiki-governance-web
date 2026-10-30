@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo } from "next/font/google";
+import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/content";
 import {
@@ -18,6 +19,17 @@ const archivo = Archivo({
   axes: ["wdth"],
   display: "swap",
   variable: "--font-archivo",
+});
+
+// Official, unmodified Jalnan Gothic OTF. This family has one Regular weight.
+// Avoid preloading it on English pages, where no element uses this variable.
+const jalnan = localFont({
+  src: "../../fonts/JalnanGothic.otf",
+  weight: "400",
+  style: "normal",
+  display: "swap",
+  variable: "--font-jalnan",
+  preload: false,
 });
 
 export const dynamicParams = false;
@@ -78,7 +90,10 @@ export default async function LocaleLayout({
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   return (
-    <html lang={lang} className={archivo.variable}>
+    <html
+      lang={lang}
+      className={`${archivo.variable} ${lang === "ko" ? jalnan.variable : ""}`}
+    >
       <body>{children}</body>
     </html>
   );
