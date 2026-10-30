@@ -30,7 +30,15 @@ SITE = os.environ.get("SITE_URL", "http://localhost:4173").rstrip("/")
 # names the production URL while pages are served from a local server.
 META = os.environ.get("CANONICAL_BASE", SITE).rstrip("/")
 AXE = (ROOT / "node_modules" / "axe-core" / "axe.min.js").read_text(encoding="utf-8")
-VIEWPORTS = {"narrow": (320, 640), "mobile": (360, 780), "tablet": (768, 1024), "desktop": (1440, 900), "wide": (1920, 1080)}
+VIEWPORTS = {
+    "narrow": (320, 640),
+    "small": (360, 800),
+    "phone": (390, 844),
+    "tablet": (768, 1024),
+    "laptop": (1280, 800),
+    "desktop": (1440, 900),
+    "wide": (1920, 1080),
+}
 RESULTS: list[tuple[str, bool, str]] = []
 
 # What `impact --since main --mode <mode>` printed after each file changed
@@ -46,7 +54,13 @@ PLAYGROUND = {
     ("format", "standard"): ("pass", 0, []),
     ("format", "strict"): ("pass", 0, []),
 }
-COMMIT = {"ko": "변경 커밋하기", "en": "Commit the change"}
+UI = {
+    "ko": {"apply": "변경 적용", "undo": "변경 되돌리기", "none": "없음", "flagged": "다시 볼 문서", "replay": "다시 보기", "next": "다음 단계", "undone": "되돌렸습니다"},
+    "en": {"apply": "Apply the change", "undo": "Undo the change", "none": "None", "flagged": "Look again", "replay": "Replay", "next": "Next step", "undone": "was undone"},
+}
+# The drift timeline: where "now" passes each commit, as a share of the scroll
+# through it (src/components/scenes/Drift.tsx). The third commit is the cited one.
+COMMIT_P = [0.217, 0.435, 0.641, 0.848]
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
@@ -76,30 +90,30 @@ def run_axe(page: Page) -> list[dict]:
     return result
 
 
-# A pinned scene's scroll range (src/components/scenes/useSequence.ts: 1.5
-# timeline units per beat, 0.6 to hold at the end). Beat i is held from i*1.5.
-PIN = """(id) => { const s = document.getElementById(id); const sp = s.closest('.pin-spacer');
-  const top = (sp || s).getBoundingClientRect().top + scrollY; return [top, sp ? sp.offsetHeight - innerHeight : 0]; }"""
+def open_page(browser, lang: str, w: int = 1440, h: int = 900, **kw) -> Page:
+    ctx = browser.new_context(viewport={"width": w, "height": h}, **kw)
+    page = ctx.new_page()
+    page.goto(f"{SITE}/{lang}/")
+    page.wait_for_load_state("networkidle")
+    return page
 
 
-def beat_y(page: Page, scene: str, beat: int, beats: int = 5) -> int:
-    top, dist = page.evaluate(PIN, scene)
-    return int(top + dist * (beat * 1.5 + 0.25) / ((beats - 1) * 1.5 + 0.6))
-
-
-def go(page: Page, y: int, wait: int = 1300) -> None:
+def go(page: Page, y: float, wait: int = 450) -> None:
     page.evaluate(f"window.scrollTo({{top: {y}, behavior: 'instant'}})")
-    page.wait_for_timeout(wait)  # scrub smoothing is 0.6 s
+    page.wait_for_timeout(wait)
 
 
-def seen(page: Page, scene: str, el: str) -> float:
-    return page.evaluate("([s, e]) => Number(getComputedStyle(document.querySelector(`#${s} [data-el=\"${e}\"]`)).opacity)", [scene, el])
-
-
-def playground_state(page: Page) -> tuple[str, str]:
-    status = page.locator("#playground [role=status]").inner_text()
-    terminal = page.locator("#playground figure pre").inner_text() if page.locator("#playground figure pre").count() else ""
-    return status, terminal
+def outcome(page: Page) -> dict:
+    """What the playground reports: the CI state, the spoken summary, the visible exit code and the CLI output."""
+    return page.evaluate(
+        """() => {
+            const pg = document.getElementById('playground');
+            const box = pg.querySelector('[data-ci]');
+            const pre = pg.querySelector('details pre');
+            return { ci: box.dataset.ci, summary: pg.querySelector('[aria-live="polite"]').textContent,
+                     text: box.textContent, terminal: pre ? pre.textContent : '' };
+        }"""
+    )
 
 
 def page_checks(browser, lang: str) -> None:
@@ -148,58 +162,268 @@ def page_checks(browser, lang: str) -> None:
     check(f"[{lang}] axe (WCAG 2.2 A/AA + best practice)", not violations, json.dumps(violations, ensure_ascii=False))
 
     # The playground says what the real CLI said, for every file and mode.
+    ui = UI[lang]
     page.locator("#playground").scroll_into_view_if_needed()
     wrong = []
     for file in ["invoice", "shipping", "format"]:
-        page.locator(f"#playground input[value={file}]").check()  # choosing a file starts from an uncommitted state
-        page.get_by_role("button", name=COMMIT[lang]).click()
+        page.locator(f"#playground input[value={file}]").check()  # choosing a file starts from an unapplied state
+        page.get_by_role("button", name=ui["apply"]).click()
         for mode in ["lite", "standard", "strict"]:
             page.locator(f"#playground input[value={mode}]").check()
             result, code, docs = PLAYGROUND[(file, mode)]
-            status, terminal = playground_state(page)
-            ok = f"(exit {code})" in status and all(d in status for d in docs) and f"- result: {result}" in terminal and f"(exit {code})" in terminal
+            o = outcome(page)
+            named = [d for d in ["billing.md", "shipping.md"] if d in o["summary"]]
+            ok = (
+                named == docs
+                and (docs or ui["none"] in o["summary"])
+                and f"exit {code}" in o["text"]
+                and f"- result: {result}" in o["terminal"]
+                and f"(exit {code})" in o["terminal"]
+            )
             if not ok:
-                wrong.append(f"{file}/{mode}: {status!r}")
+                wrong.append(f"{file}/{mode}: {o['summary']!r} {o['ci']}")
     check(f"[{lang}] playground matches the captured CLI output (9 cases)", not wrong, " | ".join(wrong))
-    page.wait_for_timeout(1600)
+    page.locator("#playground details summary").click()
+    page.wait_for_timeout(500)
     page.locator("#playground").screenshot(path=str(SHOTS / f"{lang}-playground-format-strict.png"))
     v2 = run_axe(page)
-    check(f"[{lang}] axe on the playground with output", not v2, json.dumps(v2, ensure_ascii=False))
+    check(f"[{lang}] axe on the playground with output open", not v2, json.dumps(v2, ensure_ascii=False))
     check(f"[{lang}] no console errors", not errors, " | ".join(errors[:5]))
     check(f"[{lang}] no failed requests", not bad, " | ".join(bad[:5]))
     ctx.close()
 
 
+def playground_checks(browser, lang: str) -> None:
+    ui = UI[lang]
+    page = open_page(browser, lang)
+    page.locator("#playground").scroll_into_view_if_needed()
+    o = outcome(page)
+    check(f"[{lang}] playground opens on nothing applied", o["ci"] == "idle" and not o["terminal"], o["ci"])
+    # Picking another file after applying a change says the change was undone.
+    page.get_by_role("button", name=ui["apply"]).click()
+    page.locator("#playground input[value=format]").check()
+    notice = page.locator("#playground [role=status]").inner_text()
+    reset = (outcome(page)["ci"], page.get_by_role("button", name=ui["apply"]).count())
+    check(f"[{lang}] switching files resets and says so", ui["undone"] in notice and reset == ("idle", 1), f"{notice!r} {reset}")
+    # A file no doc cites: nothing to review, and the next step says the review below is an example.
+    page.get_by_role("button", name=ui["apply"]).click()
+    nxt = page.evaluate("[...document.querySelectorAll('#playground [data-ci] dd')].at(-1).textContent")
+    check(f"[{lang}] uncited change: no docs, review offered as an example", outcome(page)["ci"] == "pass" and "billing.md" in nxt, nxt)
+    # Undo returns to the start.
+    page.get_by_role("button", name=ui["undo"]).click()
+    check(f"[{lang}] undo returns to nothing applied", outcome(page)["ci"] == "idle")
+    # A burst of input lands on the state the controls show, never between two.
+    for s in ["apply", "strict", "shipping", "apply", "lite", "apply", "apply", "standard", "format", "invoice", "shipping", "apply", "strict", "standard"]:
+        if s == "apply":
+            page.locator("#playground button[aria-pressed]").click()
+        else:
+            page.locator(f"#playground input[value={s}]").check()
+        page.wait_for_timeout(25)
+    page.wait_for_timeout(1300)
+    o = outcome(page)
+    pressed = page.get_attribute("#playground button[aria-pressed]", "aria-pressed")
+    check(f"[{lang}] a burst of 14 inputs settles on shipping, applied, standard", pressed == "true" and o["ci"] == "warn" and "shipping.md" in o["summary"] and "- result: warning" in o["terminal"], f"{pressed} {o['ci']} {o['summary']!r}")
+    # The CLI output opens in place: no scroll box inside the page.
+    page.locator("#playground details summary").click()
+    page.wait_for_timeout(300)
+    pre = page.evaluate("(() => { const p = document.querySelector('#playground details pre'); const s = getComputedStyle(p); return [s.overflowX, s.overflowY, p.scrollHeight - p.clientHeight, p.scrollWidth - p.clientWidth]; })()")
+    check(f"[{lang}] CLI output has no scroll box of its own", pre[0] == "visible" and pre[1] == "visible" and pre[2] <= 1 and pre[3] <= 1, str(pre))
+    page.context.close()
+
+
+def hero_checks(browser, lang: str) -> None:
+    ui = UI[lang]
+    page = open_page(browser, lang)
+    page.wait_for_timeout(2800)
+    shown = page.evaluate("[document.querySelector('#top [data-phase]').dataset.phase, document.querySelector('#top figure').textContent]")
+    check(f"[{lang}] hero plays once: code changes, the doc is flagged", shown[0] == "2" and ui["flagged"] in shown[1], shown[0])
+    page.get_by_role("button", name=ui["replay"]).click()
+    page.wait_for_timeout(150)
+    again = page.evaluate("document.querySelector('#top [data-phase]').dataset.phase")
+    page.wait_for_timeout(2600)
+    end = page.evaluate("document.querySelector('#top [data-phase]').dataset.phase")
+    check(f"[{lang}] Replay starts over and ends flagged again", again == "0" and end == "2", f"{again} -> {end}")
+    page.screenshot(path=str(SHOTS / f"{lang}-hero.png"))
+    # The wordmark goes back to the opening as it first appeared, from anywhere.
+    page.evaluate("window.scrollTo({top: document.body.scrollHeight, behavior: 'instant'})")
+    page.wait_for_timeout(300)
+    page.locator("header a[aria-label]").first.click()
+    page.wait_for_timeout(600)
+    back = page.evaluate("""() => {
+        const r = (s) => document.querySelector(s).getBoundingClientRect();
+        return { y: Math.round(scrollY), hash: location.hash, h1: Math.round(r('#top h1').top),
+                 cta: Math.round(r('#top a[href="#playground"]').bottom), vh: innerHeight };
+    }""")
+    check(f"[{lang}] the wordmark returns to the top with the headline and actions in view", back["y"] == 0 and back["hash"] == "#top" and 0 < back["h1"] and back["cta"] < back["vh"], json.dumps(back))
+    page.context.close()
+
+
+def anchor_checks(browser) -> None:
+    # Every menu link lands its section below the sticky header, on phones and desktops.
+    for w, h in [(1440, 900), (390, 844)]:
+        page = open_page(browser, "ko", w, h, is_mobile=w < 500, has_touch=w < 500)
+        page.wait_for_timeout(400)
+        off = []
+        for href in page.eval_on_selector_all("header nav a[href^='#']", "els => els.map(e => e.getAttribute('href'))"):
+            page.locator(f"header nav a[href='{href}']").click()
+            page.wait_for_timeout(350)
+            top, header = page.evaluate(f"[Math.round(document.querySelector('{href}').getBoundingClientRect().top), Math.round(document.querySelector('header').getBoundingClientRect().bottom)]")
+            if not (header - 2 <= top <= header + 8):
+                off.append(f"{href}: section at {top}px, header ends at {header}px")
+        check(f"menu links land below the sticky header at {w}px", not off, "; ".join(off))
+        page.context.close()
+
+
 def keyboard_checks(browser, lang: str) -> None:
-    ctx = browser.new_context(viewport={"width": 1280, "height": 900})
-    page = ctx.new_page()
-    page.goto(f"{SITE}/{lang}/")
-    page.wait_for_load_state("networkidle")
+    ui = UI[lang]
+    page = open_page(browser, lang, 1280, 800)
     page.keyboard.press("Tab")
     first = page.evaluate("document.activeElement.className")
     check(f"[{lang}] first Tab reaches skip link", "skip-link" in first, first)
-    outline = page.evaluate("getComputedStyle(document.activeElement, ':focus-visible').outlineStyle || getComputedStyle(document.activeElement).outlineStyle")
+    outline = page.evaluate("getComputedStyle(document.activeElement).outlineStyle")
     check(f"[{lang}] focus outline visible", outline not in ("none", ""), outline)
-    # The playground from the keyboard alone: arrows pick a file, Space commits, arrows pick a mode.
+    # The playground from the keyboard alone: arrows pick a file and a mode, Space applies.
     page.locator("#playground input[value=invoice]").focus()
     page.keyboard.press("ArrowDown")
     picked = page.evaluate("document.querySelector('#playground input[value=shipping]').checked")
     check(f"[{lang}] arrow keys pick a file", picked)
     page.keyboard.press("Tab")
-    page.keyboard.press("Space")
-    page.keyboard.press("Tab")
     page.keyboard.press("ArrowRight")
-    mode = page.evaluate("[...document.querySelectorAll('#playground input')].find(i => i.checked && ['lite','standard','strict'].includes(i.value))?.value")
-    status = page.locator("#playground [role=status]").inner_text()
-    check(f"[{lang}] keyboard commits a change and switches mode", mode == "standard" and "shipping.md" in status, f"{mode}: {status}")
-    live = page.locator('#playground [role="status"][aria-live="polite"]').count()
-    check(f"[{lang}] playground result is a polite live region", live == 1)
-    # Focus on a caption that is not on screen moves the pinned scene to it.
-    page.locator('#review [data-beat="3"] pre').focus()
-    page.wait_for_timeout(1300)
-    shown = page.evaluate("Number(getComputedStyle(document.querySelector('#review [data-beat=\"3\"]')).opacity)")
-    check(f"[{lang}] focus inside a later beat brings that beat on screen", shown > 0.9, f"opacity {shown}")
-    ctx.close()
+    page.keyboard.press("Tab")
+    focused = page.evaluate("document.activeElement.getAttribute('aria-pressed')")
+    page.keyboard.press("Space")
+    o = outcome(page)
+    check(f"[{lang}] keyboard: file, mode, then apply, in that order", focused == "false" and o["ci"] == "fail" and "shipping.md" in o["summary"], f"{focused} {o['ci']} {o['summary']!r}")
+    # The review steps: a rail of buttons and a pager.
+    page.locator("#review ol button").nth(2).focus()
+    page.keyboard.press("Enter")
+    cur = page.evaluate("[...document.querySelectorAll('#review ol button')].findIndex(b => b.getAttribute('aria-current') === 'step')")
+    page.get_by_role("button", name=ui["next"]).focus()
+    page.keyboard.press("Enter")
+    cur2 = page.evaluate("[...document.querySelectorAll('#review ol button')].findIndex(b => b.getAttribute('aria-current') === 'step')")
+    check(f"[{lang}] review steps from the keyboard (rail, then pager)", (cur, cur2) == (2, 3), f"{cur} {cur2}")
+    page.locator("#review details summary").focus()
+    page.keyboard.press("Enter")
+    opened = page.evaluate("document.querySelector('#review details').open")
+    check(f"[{lang}] Enter opens a step's commands", opened)
+    page.context.close()
+
+
+def review_checks(browser, lang: str) -> None:
+    page = open_page(browser, lang)
+    page.locator("#review").scroll_into_view_if_needed()
+    rail = page.locator("#review ol button")
+    desk = "document.querySelector('#review [data-doc]').textContent"
+    states = []
+    for i in [3, 1, 0]:
+        rail.nth(i).click()
+        page.wait_for_timeout(250)
+        states.append(page.evaluate(desk))
+    check(
+        f"[{lang}] review: approve shows verified 2026-10-29; downgrade shows needs_review; reading changes nothing yet",
+        "verified" in states[0] and "2026-10-29" in states[0] and "needs_review" in states[1] and "verified" in states[2] and "2026-10-29" not in states[2],
+        " | ".join(s[:60] for s in states),
+    )
+    disabled = page.evaluate("[...document.querySelectorAll('#review .btn')].map(b => b.disabled)")
+    check(f"[{lang}] review: no previous step on the first", disabled == [True, False], str(disabled))
+    page.context.close()
+
+
+def drift_checks(browser) -> None:
+    # Wide screens with motion: scrolling moves "now" along the timeline, forwards and back.
+    page = open_page(browser, "ko")
+    mode = page.evaluate("document.getElementById('drift').dataset.mode")
+    # The scroll range is the tall track around the sticky timeline (ScrollTrigger "top top" to "bottom bottom").
+    rng = page.evaluate("(() => { const t = document.getElementById('drift').firstElementChild; return [t.getBoundingClientRect().top + scrollY, t.offsetHeight - innerHeight]; })()")
+
+    def state() -> tuple[int, bool, bool]:
+        return page.evaluate("(() => { const s = document.getElementById('drift'); return [s.querySelectorAll('[data-commit][data-on]').length, s.hasAttribute('data-stale'), s.hasAttribute('data-read')]; })()")
+
+    def at(p: float, wait: int = 450) -> tuple[int, bool, bool]:
+        go(page, rng[0] + rng[1] * p, wait)
+        return tuple(state())
+
+    check("drift: scrubbed on a wide screen with motion", mode == "scrub" and rng[1] > 0, f"{mode} {rng}")
+    seq = [at(p) for p in [0.05, 0.5, 0.75, 1.0, 0.5, 0.05]]
+    want = [(0, False, False), (2, False, False), (3, True, False), (4, True, True), (2, False, False), (0, False, False)]
+    check("drift: forwards and back, each position shows the same state", seq == want, str(seq))
+    for p in [0.9, 0.1, 0.7, 0.3, 1.0, 0.0, 0.6]:
+        page.evaluate(f"window.scrollTo({{top: {rng[0] + rng[1] * p}, behavior: 'instant'}})")
+        page.wait_for_timeout(30)
+    check("drift: after rapid scrolling, it matches where it stopped", at(0.75, 600) == (3, True, False), str(state()))
+    page.screenshot(path=str(SHOTS / "desktop-drift.png"))
+    # Crossing the breakpoint switches to the static log and back.
+    page.set_viewport_size({"width": 800, "height": 900})
+    page.wait_for_timeout(600)
+    narrow = (page.evaluate("document.getElementById('drift').dataset.mode"), tuple(state()))
+    page.set_viewport_size({"width": 1440, "height": 900})
+    page.wait_for_timeout(600)
+    wide = page.evaluate("document.getElementById('drift').dataset.mode")
+    check("resize: drift switches to the static log and back", narrow == ("static", (4, True, True)) and wide == "scrub", f"{narrow} {wide}")
+    page.context.close()
+
+
+def reduced_motion_checks(browser) -> None:
+    page = open_page(browser, "ko", reduced_motion="reduce")
+    page.wait_for_timeout(300)
+    hero = page.evaluate("document.querySelector('#top [data-phase]').dataset.phase")
+    check("reduced motion: the opening shows its end state at once", hero == "2", hero)
+    drift = page.evaluate("(() => { const s = document.getElementById('drift'); return [s.dataset.mode, s.querySelectorAll('[data-commit][data-on]').length, s.hasAttribute('data-read'), Math.round(s.offsetHeight / innerHeight * 10) / 10]; })()")
+    check("reduced motion: the timeline is a complete static figure, not a long scroll", drift[0] == "static" and drift[1] == 4 and drift[2] and drift[3] < 1.6, str(drift))
+    page.locator("#playground").scroll_into_view_if_needed()
+    page.get_by_role("button", name=UI["ko"]["apply"]).click()
+    dur = page.evaluate("getComputedStyle(document.querySelector('#playground [data-doc]')).transitionDuration")
+    check("reduced motion: the playground still works, without transitions", outcome(page)["ci"] == "warn" and all(float(d.rstrip("s")) <= 0.01 for d in dur.split(",")), dur)
+    page.screenshot(path=str(SHOTS / "reduced-playground.png"))
+    page.context.close()
+
+
+def layout_checks(browser) -> None:
+    # No sideways scrolling anywhere, no scroll boxes inside the page, and commands that wrap.
+    probe = """() => {
+        document.querySelectorAll('details').forEach(d => d.open = true);
+        const boxes = [...document.querySelectorAll('main *')].filter(e => {
+            const s = getComputedStyle(e);
+            return (/(auto|scroll)/.test(s.overflowY) && e.scrollHeight > e.clientHeight + 1)
+                || (/(auto|scroll)/.test(s.overflowX) && e.scrollWidth > e.clientWidth + 1);
+        }).map(e => e.tagName + '.' + e.className);
+        const cut = [...document.querySelectorAll('main pre, main code')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.textContent.slice(0, 40));
+        return { overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth, boxes, cut };
+    }"""
+    for name, (w, h) in VIEWPORTS.items():
+        for lang in ["ko", "en"]:
+            page = open_page(browser, lang, w, h, is_mobile=w < 500, has_touch=w < 500)
+            page.wait_for_timeout(300)
+            page.screenshot(path=str(SHOTS / f"{lang}-{name}.png"))
+            r = page.evaluate(probe)
+            check(f"[{lang}] {name} {w}px: no overflow, no inner scroll boxes, no cut-off commands", r["overflow"] <= 0 and not r["boxes"] and not r["cut"], json.dumps(r, ensure_ascii=False)[:300])
+            page.context.close()
+    for lang in ["ko", "en"]:
+        page = open_page(browser, lang, 1440, 900, color_scheme="dark")
+        page.screenshot(path=str(SHOTS / f"{lang}-desktop-dark.png"))
+        page.context.close()
+
+
+def phone_checks(browser) -> None:
+    for lang in ["ko", "en"]:
+        for w in [320, 360]:
+            page = open_page(browser, lang, w, 640)
+            rows = page.evaluate("""() => {
+                const box = (s) => document.querySelector(s).getBoundingClientRect();
+                const mark = box('header a[aria-label]'), sw = box('header .lang-switch');
+                return {markMid: Math.round(mark.top + mark.height / 2), switchMid: Math.round(sw.top + sw.height / 2), switchRight: Math.round(sw.right), width: innerWidth};
+            }""")
+            check(f"[{lang}] header first row holds wordmark and switch at {w}px", abs(rows["markMid"] - rows["switchMid"]) < 4 and rows["switchRight"] <= rows["width"], json.dumps(rows))
+            page.context.close()
+    page = open_page(browser, "ko", 360, 800, is_mobile=True, has_touch=True)
+    small = page.evaluate("""() => [...document.querySelectorAll('header a, main button, main summary, #playground label, footer a.btn')]
+        .filter(e => e.offsetParent).map(e => [e.textContent.trim().slice(0, 24), Math.round(e.getBoundingClientRect().height)]).filter(([, h]) => h < 44)""")
+    check("phone: buttons, menu links, disclosures and choices are at least 44px tall", not small, json.dumps(small, ensure_ascii=False))
+    drift = page.evaluate("(() => { const s = document.getElementById('drift'); return [s.dataset.mode, s.querySelectorAll('[data-commit][data-on]').length]; })()")
+    check("phone: the timeline is a static log, nothing pinned", drift == ["static", 4], str(drift))
+    gap = page.evaluate("(() => { const b = document.querySelector('#playground button[aria-pressed]').getBoundingClientRect(); const o = document.querySelector('#playground [data-ci]').getBoundingClientRect(); return Math.round(o.top - b.bottom); })()")
+    check("phone: the result follows the apply button", 0 <= gap < 120, f"{gap}px")
+    page.context.close()
 
 
 def copy_checks(browser, lang: str) -> None:
@@ -217,157 +441,8 @@ def copy_checks(browser, lang: str) -> None:
     ctx.close()
 
 
-def layout_checks(browser) -> None:
-    for name, (w, h) in VIEWPORTS.items():
-        for scheme in ["light", "dark"]:
-            for lang in ["ko", "en"]:
-                ctx = browser.new_context(viewport={"width": w, "height": h}, color_scheme=scheme)
-                page = ctx.new_page()
-                page.goto(f"{SITE}/{lang}/")
-                page.wait_for_load_state("networkidle")
-                page.wait_for_timeout(400)
-                overflow = page.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth")
-                if scheme == "light":
-                    check(f"[{lang}] no horizontal overflow at {name} {w}px", overflow <= 0, f"{overflow}px")
-                page.screenshot(path=str(SHOTS / f"{lang}-{name}-{scheme}.png"))
-                ctx.close()
-
-
-def narrow_checks(browser) -> None:
-    # Phones: wordmark and language switch share the first header row.
-    for lang in ["ko", "en"]:
-        for w in [320, 360]:
-            ctx = browser.new_context(viewport={"width": w, "height": 640})
-            page = ctx.new_page()
-            page.goto(f"{SITE}/{lang}/")
-            page.wait_for_load_state("networkidle")
-            rows = page.evaluate("""() => {
-                const box = (s) => document.querySelector(s).getBoundingClientRect();
-                const mark = box('header a[aria-label]'), sw = box('header .lang-switch');
-                return {markMid: Math.round(mark.top + mark.height / 2), switchMid: Math.round(sw.top + sw.height / 2), switchRight: Math.round(sw.right), width: innerWidth};
-            }""")
-            check(f"[{lang}] header first row holds wordmark and switch at {w}px", abs(rows["markMid"] - rows["switchMid"]) < 4 and rows["switchRight"] <= rows["width"], json.dumps(rows))
-            ctx.close()
-
-
-def scroll_checks(browser) -> None:
-    # Wide screens with motion: pinned, scrubbed scenes that reverse exactly.
-    ctx = browser.new_context(viewport={"width": 1440, "height": 900})
-    page = ctx.new_page()
-    page.goto(f"{SITE}/ko/")
-    page.wait_for_load_state("networkidle")
-    page.wait_for_timeout(2200)
-    pins = page.evaluate("document.querySelectorAll('.pin-spacer').length")
-    modes = page.evaluate("[...document.querySelectorAll('section[data-mode]')].map(s => s.dataset.mode)")
-    check("desktop: three pinned, scrubbed scenes", pins == 3 and modes == ["scrub"] * 3, f"{pins} {modes}")
-    go(page, beat_y(page, "top", 1, 3))
-    check("opening: scroll hint leaves once scrolling starts", page.evaluate("Number(getComputedStyle(document.querySelector('[data-hint]')).opacity)") < 0.05)
-    go(page, beat_y(page, "story", 4))
-    page.screenshot(path=str(SHOTS / "desktop-story-flag.png"))
-    forward = (seen(page, "story", "flag-billing"), seen(page, "story", "verified-billing"))
-    check("story: the last beat flags billing.md, still verified", forward[0] > 0.9 and forward[1] > 0.9, str(forward))
-    go(page, beat_y(page, "story", 0))
-    back = (seen(page, "story", "flag-billing"), seen(page, "story", "needs-billing"))
-    check("story: scrolling back undoes it (no flag, needs_review)", back[0] < 0.05 and back[1] > 0.9, str(back))
-    # Rapid scrolling, then a stop: the drawing is exactly the beat it stopped on.
-    for y in [12000, 300, 8000, 2500, 15000, 5000, 900, 11000, 4200, 7000]:
-        page.evaluate(f"window.scrollTo({{top: {y}, behavior: 'instant'}})")
-        page.wait_for_timeout(40)
-    go(page, beat_y(page, "story", 2), 1800)
-    moved = page.evaluate("document.querySelector('#story [data-plate=\"file-invoice\"]').dataset.moved")
-    state = (seen(page, "story", "flag-billing"), seen(page, "story", "verified-billing"), moved)
-    check("story: after rapid scrolling, beat 3 shows a moved file and no flag", state[0] < 0.05 and state[1] > 0.9 and moved == "on", str(state))
-    go(page, beat_y(page, "review", 4))
-    lit = page.evaluate("document.getElementById('review').dataset.lit")
-    final = (seen(page, "review", "verified-billing"), seen(page, "review", "claim-new"), seen(page, "review", "at-new"))
-    check("review: the last beat is re-approved, rewritten and on paper", lit == "true" and min(final) > 0.9, f"{lit} {final}")
-    page.screenshot(path=str(SHOTS / "desktop-review-end.png"))
-    go(page, beat_y(page, "review", 1))
-    down = (seen(page, "review", "needs-billing"), seen(page, "review", "flag-billing"))
-    check("review: scrolling back to beat 2 shows needs_review and no flag", down[0] > 0.9 and down[1] < 0.05, str(down))
-    # Crossing the breakpoint rebuilds the scenes once, without leftovers.
-    page.set_viewport_size({"width": 800, "height": 900})
-    page.wait_for_timeout(900)
-    narrow = (page.evaluate("document.querySelectorAll('.pin-spacer').length"), page.evaluate("[...document.querySelectorAll('section[data-mode]')].map(s => s.dataset.mode)"))
-    page.set_viewport_size({"width": 1440, "height": 900})
-    page.wait_for_timeout(900)
-    wide = (page.evaluate("document.querySelectorAll('.pin-spacer').length"), page.evaluate("[...document.querySelectorAll('section[data-mode]')].map(s => s.dataset.mode)"))
-    check("resize: scenes switch to discrete and back with no duplicate pins", narrow == (0, ["discrete"] * 3) and wide == (3, ["scrub"] * 3), f"{narrow} {wide}")
-    ctx.close()
-
-
-def playground_rapid_checks(browser) -> None:
-    # A burst of input lands on the state the controls show, never between two.
-    ctx = browser.new_context(viewport={"width": 1440, "height": 900})
-    page = ctx.new_page()
-    page.goto(f"{SITE}/en/#playground")
-    page.wait_for_load_state("networkidle")
-    page.wait_for_timeout(1200)
-    commit = page.locator("#playground .btn")
-    steps = ["commit", "strict", "shipping", "commit", "lite", "commit", "commit", "standard", "format", "invoice", "shipping", "commit", "strict", "standard"]
-    for s in steps:
-        if s == "commit":
-            commit.click()
-        else:
-            page.locator(f"#playground input[value={s}]").check()
-        page.wait_for_timeout(25)
-    page.wait_for_timeout(2200)
-    status, terminal = playground_state(page)
-    flags = (seen(page, "playground", "flag-billing"), seen(page, "playground", "flag-shipping"))
-    moved = page.evaluate("[...document.querySelectorAll('#playground [data-plate^=\"file-\"]')].filter(p => p.dataset.moved === 'on').map(p => p.dataset.file)")
-    ok = flags[0] > 0.95 and flags[1] > 0.95 and moved == ["shipping"] and "billing.md and shipping.md" in status and "- result: warning" in terminal
-    check("playground: a burst of 14 inputs settles on shipping, committed, standard", ok, f"{flags} {moved} {status!r}")
-    ctx.close()
-
-
-def reduced_motion_checks(browser) -> None:
-    ctx = browser.new_context(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
-    page = ctx.new_page()
-    page.goto(f"{SITE}/ko/")
-    page.wait_for_load_state("networkidle")
-    page.wait_for_timeout(300)
-    pins = page.evaluate("document.querySelectorAll('.pin-spacer').length")
-    modes = page.evaluate("[...document.querySelectorAll('section[data-mode]')].map(s => s.dataset.mode)")
-    check("reduced motion: nothing is pinned or scrubbed", pins == 0 and modes == ["discrete"] * 3, f"{pins} {modes}")
-    ready = page.evaluate("(() => { const w = document.querySelector('#top [data-svg=under]').parentElement; return [w.dataset.ready, Number(getComputedStyle(w.querySelector('[data-plate=floor]')).opacity)]; })()")
-    check("reduced motion: the opening drawing is complete at once (no intro)", ready[0] == "true" and ready[1] > 0.99, str(ready))
-    hidden = page.evaluate("[...document.querySelectorAll('#story [data-beat], #review [data-beat]')].filter(b => getComputedStyle(b).opacity !== '1' || b.getBoundingClientRect().height === 0).length")
-    check("reduced motion: every story and review caption is visible text", hidden == 0, f"{hidden} hidden")
-    cap = page.locator('#story [data-beat="4"]')
-    y = cap.evaluate("e => e.getBoundingClientRect().top + scrollY - innerHeight * 0.55")
-    page.evaluate(f"window.scrollTo({{top: {y}, behavior: 'instant'}})")
-    page.wait_for_timeout(250)
-    check("reduced motion: a caption switches the drawing instantly", seen(page, "story", "flag-billing") > 0.99)
-    page.screenshot(path=str(SHOTS / "reduced-story-flag.png"))
-    page.locator("#playground").scroll_into_view_if_needed()
-    page.locator("#playground input[value=invoice]").check()
-    page.get_by_role("button", name=COMMIT["ko"]).click()
-    page.locator("#playground input[value=strict]").check()
-    page.wait_for_timeout(200)
-    check("reduced motion: the playground still works, without transitions", seen(page, "playground", "flag-billing") > 0.99)
-    ctx.close()
-
-
-def phone_checks(browser) -> None:
-    ctx = browser.new_context(viewport={"width": 360, "height": 780}, is_mobile=True, has_touch=True)
-    page = ctx.new_page()
-    page.goto(f"{SITE}/ko/")
-    page.wait_for_load_state("networkidle")
-    page.wait_for_timeout(2400)
-    pins = page.evaluate("document.querySelectorAll('.pin-spacer').length")
-    ready = page.evaluate("[...document.querySelectorAll('[data-svg=under]')].map(s => s.parentElement.dataset.ready === 'true')")
-    check("phone: no pinned scenes; every drawing renders", pins == 0 and all(ready), f"{pins} {ready}")
-    cap = page.locator('#story [data-beat="4"]')
-    y = cap.evaluate("e => e.getBoundingClientRect().top + scrollY - innerHeight * 0.66")
-    page.evaluate(f"window.scrollTo({{top: {y}, behavior: 'instant'}})")
-    page.wait_for_timeout(1400)
-    page.screenshot(path=str(SHOTS / "phone-story-flag.png"))
-    check("phone: reaching the last story caption flags the doc", seen(page, "story", "flag-billing") > 0.95)
-    ctx.close()
-
-
 def font_checks(browser) -> None:
-    # Korean h1/h2 use the subset display face; the English page never fetches it.
+    # Korean headings use the subset display face; the English page never fetches it.
     for lang in ["ko", "en"]:
         ctx = browser.new_context()
         page = ctx.new_page()
@@ -409,12 +484,11 @@ def routing_checks(browser) -> None:
         check("language switch follows the hash", False, f"{state} console={logs[:5]}")
     page.locator("header .lang-switch").click()
     page.wait_for_url("**/en/**", timeout=10000)
-    page.wait_for_timeout(1200)
+    page.wait_for_timeout(800)
     check("language switch keeps the section", page.url == f"{SITE}/en/#playground", page.url)
     check("language switch updates <html lang>", page.get_attribute("html", "lang") == "en")
-    # Pinned scenes above it add their length after hydration; the page still lands on the section.
-    top = page.evaluate("Math.round(document.getElementById('playground').getBoundingClientRect().top)")
-    check("a #section link lands on the section after the scenes are pinned", abs(top) < 80, f"{top}px from the top")
+    top, header = page.evaluate("[Math.round(document.getElementById('playground').getBoundingClientRect().top), Math.round(document.querySelector('header').getBoundingClientRect().bottom)]")
+    check("a #section link from the other language lands on the section", header - 2 <= top <= header + 8, f"{top}px, header {header}px")
     resp = page.goto(f"{SITE}/does-not-exist/")
     check("unknown path returns 404", resp is not None and resp.status == 404, str(resp.status if resp else None))
     check("404 page has content", "There is no page at this address" in (page.text_content("body") or ""))
@@ -433,13 +507,15 @@ def main() -> int:
         browser = p.chromium.launch(headless=True)
         for lang in ["ko", "en"]:
             page_checks(browser, lang)
+            playground_checks(browser, lang)
+            hero_checks(browser, lang)
             keyboard_checks(browser, lang)
+            review_checks(browser, lang)
             copy_checks(browser, lang)
-        layout_checks(browser)
-        narrow_checks(browser)
-        scroll_checks(browser)
-        playground_rapid_checks(browser)
+        anchor_checks(browser)
+        drift_checks(browser)
         reduced_motion_checks(browser)
+        layout_checks(browser)
         phone_checks(browser)
         font_checks(browser)
         routing_checks(browser)

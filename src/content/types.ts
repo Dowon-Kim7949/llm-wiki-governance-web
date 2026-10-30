@@ -15,9 +15,10 @@ export type CommandEntry = {
   effect: string;
 };
 
-/** One step of a scroll sequence: what the visitor reads while the drawing changes. */
-export type Beat = {
+/** One step of the review example. */
+export type Step = {
   id: string;
+  label: string;
   title: string;
   body: string;
   /** The honest caveat for this step, when there is one. */
@@ -29,7 +30,7 @@ export type Dictionary = {
   nav: {
     skip: string;
     label: string;
-    story: string;
+    how: string;
     playground: string;
     start: string;
     limits: string;
@@ -37,56 +38,82 @@ export type Dictionary = {
     otherLang: string;
     otherLangName: string;
   };
-  /** Words drawn on the plates. File paths and frontmatter stay as the CLI writes them. */
-  world: {
+  /** Words inside the doc and code cards. File paths and frontmatter stay as the CLI writes them. */
+  cards: {
     claimInvoice: string;
     claimInvoiceFixed: string;
     claimShippingFree: string;
     claimShippingFee: string;
-    flag: string;
+    flagged: string;
+    unaffected: string;
+    unchecked: string;
+    changed: string;
+    unchanged: string;
+    evidence: string;
   };
-  opening: {
+  hero: {
     title: string;
     lede: string;
     primary: string;
     secondary: string;
-    scrollHint: string;
-    beats: Beat[];
+    replay: string;
+    /** What the figure shows, by phase: aligned, code changed, doc flagged. */
+    captions: [string, string, string];
   };
-  story: {
+  drift: {
     heading: string;
-    intro: string;
-    /** "{n}" and "{total}" are replaced. */
-    stepOf: string;
-    beats: Beat[];
+    lede: string;
+    codeLane: string;
+    docLane: string;
+    reviewed: string;
+    commits: { date: string; file: string; message: string; cited?: boolean }[];
+    stale: string;
+    agent: string;
+    resolve: string;
+  };
+  anatomy: {
+    heading: string;
+    lede: string;
+    parts: { field: string; title: string; body: string }[];
   };
   playground: {
     heading: string;
-    intro: string;
+    lede: string;
     disclaimer: string;
     fileLabel: string;
-    files: Record<FileId, { citedBy: string }>;
-    /** "{docs}" is replaced by the doc names, or by `none`. */
-    cites: string;
-    none: string;
-    and: string;
-    changeLabel: string;
-    commit: string;
-    revert: string;
+    resetNote: string;
+    switched: string;
+    files: Record<FileId, { citedBy: string; change: string }>;
+    apply: string;
+    undo: string;
     modeLabel: string;
     modes: Record<Mode, { label: string; summary: string }>;
-    idle: string;
-    result: { off: string; clear: string; warn: string; fail: string };
-    gate: { label: string; idle: string; pass: string; warn: string; fail: string };
+    result: {
+      heading: string;
+      changed: string;
+      affected: string;
+      ci: string;
+      why: string;
+      next: string;
+      idle: string;
+      none: string;
+    };
+    ci: { idle: string; pass: string; off: string; warn: string; fail: string };
+    why: { idle: string; lite: string; standard: string; strict: string; none: string };
+    next: { idle: string; review: string; example: string; lite: string; liteAction: string; none: string };
     terminal: string;
-    next: string;
+    and: string;
   };
   review: {
     heading: string;
-    intro: string;
+    lede: string;
     stepOf: string;
-    beats: Beat[];
+    prev: string;
+    next: string;
+    commands: string;
+    steps: Step[];
   };
+  finale: { line: string };
   start: {
     heading: string;
     intro: string;

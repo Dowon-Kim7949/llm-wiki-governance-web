@@ -12,9 +12,7 @@
 
 .out {
   margin: 0;
-  max-height: 22rem;
   padding: 0.9rem 1rem;
-  overflow: auto;
   border: 1px solid var(--term-edge);
   border-radius: var(--radius-s);
   background: var(--term-bg);

@@ -3,55 +3,65 @@
 import { useId, useRef, useState } from "react";
 import type { Dictionary, DocId, FileId, Mode } from "@/content/types";
 import { TRANSCRIPTS } from "@/content/transcripts";
+import { CITES, DOC_IDS, DOCS, FILE_IDS, FILES } from "@/lib/demo";
 import { outcome } from "@/lib/playground";
-import { FILES } from "@/lib/world";
-import { PlaygroundMotion } from "./Motion";
+import { CodeCard, DocCard, type Mark } from "../figure/Cards";
+import { Links, type LinkState } from "../figure/Links";
 import { Terminal } from "./Terminal";
 import styles from "./Playground.module.css";
 
-const FILE_IDS = Object.keys(FILES) as FileId[];
 const MODES: Mode[] = ["lite", "standard", "strict"];
-const DOC_NAME: Record<DocId, string> = { billing: "billing.md", shipping: "shipping.md" };
 
 /**
- * Scene 03, the signature interaction. Everything shown is a pure function of
- * (file, committed, mode); the drawing (./PlaygroundMotion) tweens toward it,
- * so rapid input can only ever land on the state the controls show.
+ * Scene 04, the one place the visitor causes the change. Everything shown is
+ * a pure function of (file, applied, mode) and src/lib/playground.ts, which is
+ * checked against the real v1.42.0 output; the terminal is supporting evidence.
  */
 export function Playground({ t }: { t: Dictionary }) {
   const p = t.playground;
   const ids = useId();
-  const section = useRef<HTMLElement>(null);
+  const map = useRef<HTMLDivElement>(null);
   const [file, setFile] = useState<FileId>("invoice");
-  const [committed, setCommitted] = useState(false);
-  const [mode, setMode] = useState<Mode>("lite");
-  const o = outcome(file, committed, mode);
+  const [applied, setApplied] = useState(false);
+  const [mode, setMode] = useState<Mode>("standard");
+  const [notice, setNotice] = useState("");
+  const o = outcome(file, applied, mode);
 
-  const docs = (list: DocId[]) => (list.length ? list.map((d) => DOC_NAME[d]).join(p.and) : p.none);
-  const result = !committed
-    ? p.idle
-    : !o.checked
-      ? p.result.off
-      : o.flagged.length === 0
-        ? p.result.clear
-        : (o.result === "fail" ? p.result.fail : p.result.warn).replace("{docs}", docs(o.flagged));
-  const gate = o.result === "idle" ? "idle" : o.result === "fail" ? "fail" : o.result === "warning" ? "warn" : "pass";
+  const pick = (next: FileId) => {
+    if (next === file) return;
+    setNotice(applied ? p.switched.replace("{file}", FILES[next].path) : "");
+    setFile(next);
+    setApplied(false);
+  };
+
+  const docName = (d: DocId) => DOCS[d].name;
+  const list = (docs: DocId[]) => docs.map(docName).join(p.and);
+  const markOf = (d: DocId): Mark => {
+    if (!applied) return null;
+    if (!o.cites.includes(d)) return "unaffected";
+    return o.checked ? "flagged" : "unchecked";
+  };
+  const linkState = (f: FileId): LinkState => (applied && f === file ? (o.checked ? "shifted" : "unchecked") : "aligned");
+  const ci = !applied ? "idle" : !o.checked ? "off" : o.result === "fail" ? "fail" : o.result === "warning" ? "warn" : "pass";
+  const why = !applied ? p.why.idle : o.cites.length === 0 ? p.why.none : p.why[mode];
+  const ciText = p.ci[ci].replace("{n}", String(o.flagged.length));
 
   return (
-    <section id="playground" ref={section} className={`${styles.playground} env-night`} aria-labelledby="playground-title">
-      <div className={styles.inner}>
-        <header className={styles.head}>
-          <h2 id="playground-title" className={styles.heading}>{p.heading}</h2>
-          <p className={styles.intro}>{p.intro}</p>
-        </header>
+    <section id="playground" className={`${styles.playground} env-night`} aria-labelledby="playground-title">
+      <header className={styles.head}>
+        <h2 id="playground-title" className={styles.heading}>{p.heading}</h2>
+        <p className={styles.lede}>{p.lede}</p>
+        <p className={styles.disclaimer}>{p.disclaimer}</p>
+      </header>
 
+      <div className={styles.bench}>
         <div className={styles.controls}>
           <fieldset className={styles.group}>
             <legend className={styles.legend}>{p.fileLabel}</legend>
             <div className={styles.files}>
               {FILE_IDS.map((id) => (
                 <label key={id} className={styles.file}>
-                  <input type="radio" name={`${ids}-file`} value={id} checked={file === id} onChange={() => { setFile(id); setCommitted(false); }} />
+                  <input type="radio" name={`${ids}-file`} value={id} checked={file === id} onChange={() => pick(id)} />
                   <span className={styles.fileBox}>
                     <code className={styles.path}>{FILES[id].path}</code>
                     <span className={styles.cited}>{p.files[id].citedBy}</span>
@@ -59,14 +69,9 @@ export function Playground({ t }: { t: Dictionary }) {
                 </label>
               ))}
             </div>
+            <p className={styles.note}>{p.resetNote}</p>
+            <p className={styles.notice} role="status">{notice}</p>
           </fieldset>
-
-          <div className={styles.group}>
-            <p className={styles.legend} id={`${ids}-change`}>{p.changeLabel}</p>
-            <button type="button" className={`btn ${committed ? "btn-secondary" : "btn-primary"} ${styles.commit}`} aria-describedby={`${ids}-change`} onClick={() => setCommitted((v) => !v)}>
-              {committed ? p.revert : p.commit}
-            </button>
-          </div>
 
           <fieldset className={styles.group}>
             <legend className={styles.legend}>{p.modeLabel}</legend>
@@ -78,39 +83,116 @@ export function Playground({ t }: { t: Dictionary }) {
                 </label>
               ))}
             </div>
-            <p className={styles.modeSummary}>{p.modes[mode].summary}</p>
+            <p className={styles.note}>{p.modes[mode].summary}</p>
           </fieldset>
-          <p className={styles.disclaimer}>{p.disclaimer}</p>
+
+          <button type="button" className={`btn ${applied ? "btn-secondary" : "btn-primary"} ${styles.apply}`} aria-pressed={applied} onClick={() => { setApplied((v) => !v); setNotice(""); }}>
+            {applied ? p.undo : p.apply}
+          </button>
         </div>
 
-        <div className={styles.bench}>
-          <div className={styles.stage}>
-            <PlaygroundMotion t={t.world} scope={section} file={file} committed={committed} flagged={o.flagged} />
+        <div ref={map} className={styles.map} aria-hidden="true">
+          <div className={styles.mapDocs}>
+            {DOC_IDS.map((d) => (
+              <DocCard key={d} doc={d} t={t.cards} status="verified" mark={markOf(d)} claim={d === "billing" ? t.cards.claimInvoice : t.cards.claimShippingFee} anchor={`pg-${d}`} compact />
+            ))}
           </div>
-          <p className={styles.cites}>{p.cites.replace("{docs}", docs(o.cites))}</p>
-          <div className={styles.readout}>
-            <div className={styles.gate} data-gate={gate}>
-              <svg viewBox="0 0 64 24" aria-hidden="true" className={styles.gateIcon}>
-                <path d="M2 12h60" className={styles.gateTrack} />
-                {gate === "fail" ? <path d="M32 2v20" className={styles.gateBar} /> : <path d="M32 12 46 2" className={styles.gateArm} />}
-                {gate === "warn" && <path d="M54 4 61 17H47z" className={styles.gateWarn} />}
-              </svg>
-              <span>
-                {p.gate.label}: <strong>{p.gate[gate]}</strong>
-              </span>
+          <div className={styles.mapFiles}>
+            {FILE_IDS.map((f) => (
+              <CodeCard key={f} file={f} t={t.cards} state={applied && f === file ? "changed" : "unchanged"} anchor={`pg-${f}`} selected={f === file} compact />
+            ))}
+          </div>
+          <Links
+            links={CITES.map((c) => ({ from: `pg-${c.doc}-ev${DOCS[c.doc].evidence.findIndex((e) => e.startsWith(FILES[c.file].path))}`, to: `pg-${c.file}-line`, state: linkState(c.file) }))}
+            watch={`${file}-${applied}-${mode}`}
+          />
+        </div>
+
+        <div className={styles.outcome} data-ci={ci}>
+          <h3 className={styles.outcomeTitle}>{p.result.heading}</h3>
+          <dl className={styles.facts}>
+            <div>
+              <dt>{p.result.changed}</dt>
+              <dd>
+                {applied ? (
+                  <>
+                    <code>{FILES[file].path}</code> {p.files[file].change}
+                  </>
+                ) : (
+                  p.result.idle
+                )}
+              </dd>
             </div>
-            <p className={styles.result} role="status" aria-live="polite">{result}</p>
-          </div>
-          {/* The terminal keeps its place while idle, so the page never changes height under the pinned scenes. */}
-          <div className={styles.terminalSlot}>
-            {committed ? (
-              <Terminal label={p.terminal} runs={[TRANSCRIPTS.diffstat[file], TRANSCRIPTS.impact[file][mode]]} />
-            ) : (
-              <p className={styles.terminalIdle}>{p.idle}</p>
-            )}
-          </div>
-          <p className={styles.next}>
-            <a href="#review">{p.next}</a>
+            <div>
+              <dt>{p.result.affected}</dt>
+              <dd>
+                {!applied ? "—" : o.flagged.length ? (
+                  <span className={styles.docChips}>
+                    {o.flagged.map((d) => (
+                      <span key={d} className={styles.docChip}>
+                        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1v10M3 1.5h7L8 4l2 2.5H3z" fill="currentColor" stroke="currentColor" strokeWidth="1.2" /></svg>
+                        {docName(d)}
+                      </span>
+                    ))}
+                  </span>
+                ) : (
+                  <>
+                    {p.result.none}
+                    <span className={styles.sub}>{p.files[file].citedBy}</span>
+                  </>
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>{p.result.ci}</dt>
+              <dd>
+                <span className={styles.ci}>
+                  <svg viewBox="0 0 16 16" aria-hidden="true" className={styles.ciIcon}>
+                    {ci === "fail" && <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />}
+                    {ci === "warn" && <path d="M8 1.5 15 14H1z" fill="currentColor" />}
+                    {(ci === "pass" || ci === "off") && <path d="M2.5 8.5 6.5 12.5 13.5 4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />}
+                    {ci === "idle" && <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3 2.5" />}
+                  </svg>
+                  {ciText}
+                  {o.exit !== null && <span className={styles.exit}>exit {o.exit}</span>}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>{p.result.why}</dt>
+              <dd>{why}</dd>
+            </div>
+            <div>
+              <dt>{p.result.next}</dt>
+              <dd>
+                {!applied ? (
+                  p.next.idle
+                ) : o.flagged.length ? (
+                  <>
+                    <a href="#review" className={styles.nextLink}>{p.next.review}</a>
+                    {file !== "invoice" && <span className={styles.sub}>{p.next.example}</span>}
+                  </>
+                ) : o.cites.length && !o.checked ? (
+                  <>
+                    {p.next.lite}
+                    <button type="button" className={styles.inline} onClick={() => setMode("standard")}>{p.next.liteAction}</button>
+                  </>
+                ) : (
+                  <>
+                    {p.next.none} <a href="#review" className={styles.nextLink}>{p.next.review}</a>
+                  </>
+                )}
+              </dd>
+            </div>
+          </dl>
+          {applied && (
+            <details className={styles.evidence}>
+              <summary>{p.terminal}</summary>
+              <Terminal runs={[TRANSCRIPTS.diffstat[file], TRANSCRIPTS.impact[file][mode]]} />
+            </details>
+          )}
+          <p className="visually-hidden" aria-live="polite">
+            {applied ? `${ciText}. ${p.result.affected}: ${o.flagged.length ? list(o.flagged) : p.result.none}.` : ""}
           </p>
         </div>
       </div>

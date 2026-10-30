@@ -1,0 +1,103 @@
+/* Evidence connectors. Each state has its own stroke pattern as well as colour. */
+.links {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:
+    stroke var(--dur-state) var(--ease-out),
+    stroke-width var(--dur-state) var(--ease-out);
+}
+
+.dot {
+  transition: fill var(--dur-state) var(--ease-out);
+}
+
+.label {
+  font: 700 0.74rem/1 var(--font-body);
+  paint-order: stroke;
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+
+.aligned .line {
+  stroke: var(--link-held, #7fd0a2);
+}
+
+.aligned .dot,
+.aligned .label {
+  fill: var(--link-held, #7fd0a2);
+}
+
+.shifted .line {
+  stroke: var(--link-flag, #ff6fa3);
+  stroke-width: 3.5;
+}
+
+.shifted .dot,
+.shifted .label {
+  fill: var(--link-flag, #ff6fa3);
+}
+
+.draft .line {
+  stroke: var(--link-pending, #f0c060);
+  stroke-dasharray: 9 7;
+}
+
+.draft .dot,
+.draft .label {
+  fill: var(--link-pending, #f0c060);
+}
+
+.unchecked .line {
+  stroke: var(--link-quiet, #8aa3b4);
+  stroke-dasharray: 2 7;
+}
+
+.unchecked .dot,
+.unchecked .label {
+  fill: var(--link-quiet, #8aa3b4);
+}
+
+.muted .line {
+  stroke: var(--link-muted, #36566f);
+  stroke-width: 2;
+}
+
+.muted .dot {
+  fill: var(--link-muted, #36566f);
+}
+
+.muted .label {
+  fill: transparent;
+}
+
+.label {
+  stroke: var(--link-halo, #0f2536);
+}
+
+/* A shift that the check reports is noticed once, not pulsed forever. */
+.shifted .line {
+  animation: notice var(--dur-scene) var(--ease-out) 1;
+}
+
+@keyframes notice {
+  0% {
+    stroke-width: 9;
+    opacity: 0.35;
+  }
+  100% {
+    stroke-width: 3.5;
+    opacity: 1;
+  }
+}

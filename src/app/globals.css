@@ -46,6 +46,14 @@
   --radius-m: 10px;
   --header-h: 3.75rem;
 
+  /* Motion: three durations, two curves. Feedback is quick; a state change is
+     read as it happens; a scene beat (a card moving into line) takes longer. */
+  --dur-fast: 160ms;
+  --dur-state: 420ms;
+  --dur-scene: 780ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+
   /* Paper cards that sit in any light (the review scene's captions). */
   --card: #f4f6f2;
   --card-fg: #17232b;

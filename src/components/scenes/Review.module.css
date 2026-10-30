@@ -1,0 +1,196 @@
+/* Scene 05: a person's light. Steps on a rail, the doc and code on the desk. */
+.review {
+  --link-held: #2b6146;
+  --link-flag: #b0124f;
+  --link-pending: #7a5500;
+  --link-halo: var(--paper);
+  padding: clamp(4rem, 2.5rem + 5vw, 7.5rem) max(var(--gutter), calc((100% - var(--max)) / 2));
+}
+
+.heading {
+  max-width: 16ch;
+  font-size: var(--display-2);
+  font-weight: 820;
+  font-variation-settings: "wdth" 112;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+
+:lang(ko) .heading {
+  max-width: 13em;
+  font-size: var(--display-2-ko);
+  line-height: 1.22;
+}
+
+.lede {
+  max-width: 42rem;
+  margin-top: 0.9rem;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--fg-soft);
+}
+
+.rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: clamp(1.75rem, 1rem + 2vw, 2.75rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.railStep {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 52px;
+  padding: 0.5rem 0.8rem;
+  border: 0;
+  border-top: 4px solid var(--line-dim);
+  background: transparent;
+  color: var(--fg-soft);
+  font: inherit;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-state) var(--ease-out),
+    color var(--dur-state) var(--ease-out);
+}
+
+.railStep[data-done] {
+  border-top-color: var(--fg-soft);
+}
+
+.railStep[aria-current="step"] {
+  border-top-color: var(--fg);
+  color: var(--fg);
+}
+
+.railNum {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  flex: none;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+}
+
+.railStep[aria-current="step"] .railNum {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+
+.stage {
+  display: grid;
+  gap: 2rem;
+  margin-top: 1.75rem;
+}
+
+.desk {
+  position: relative;
+  display: grid;
+  gap: 1.5rem;
+  padding-right: 2rem;
+}
+
+.text {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.count {
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-soft);
+}
+
+.title {
+  margin-top: 0.3rem;
+  font-size: var(--display-3);
+  font-weight: 780;
+  line-height: 1.2;
+}
+
+:lang(ko) .title {
+  font-size: var(--display-3-ko);
+  line-height: 1.32;
+}
+
+.body {
+  margin-top: 0.7rem;
+  font-size: var(--step-1);
+  line-height: 1.55;
+}
+
+.note {
+  margin-top: 0.8rem;
+  padding-left: 0.8rem;
+  border-left: 3px solid var(--line);
+  color: var(--fg-soft);
+}
+
+.commands summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.commands :global(figure) {
+  margin-top: 0.5rem;
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.pager button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (min-width: 64rem) {
+  .stage {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.7fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "desk text"
+      "desk pager";
+    column-gap: clamp(2.5rem, 5vw, 5rem);
+    row-gap: 1.5rem;
+    align-items: start;
+  }
+  .text {
+    grid-area: text;
+  }
+  .pager {
+    grid-area: pager;
+  }
+  .desk {
+    grid-area: desk;
+    --card-size: clamp(0.95rem, 0.6rem + 0.5vw, 1.12rem);
+    --code-em: 0.8em;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    column-gap: clamp(3.5rem, 6vw, 6rem);
+    align-items: start;
+    padding: 4.5rem 0 3rem;
+  }
+  .code {
+    margin-top: 8rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  .rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

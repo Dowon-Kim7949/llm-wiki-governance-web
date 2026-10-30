@@ -1,12 +1,12 @@
 import type { Excerpt } from "@/content/transcripts";
 import styles from "./Terminal.module.css";
 
-/** Real CLI output, excerpted (see src/content/transcripts.ts). Focusable so it can be scrolled by keyboard. */
-export function Terminal({ label, runs, className = "" }: { label: string; runs: Excerpt[]; className?: string }) {
+/** Real CLI output, excerpted (see src/content/transcripts.ts). Lines wrap, so it never scrolls inside the page. */
+export function Terminal({ label = "", runs, className = "" }: { label?: string; runs: Excerpt[]; className?: string }) {
   return (
     <figure className={`${styles.terminal} ${className}`}>
-      <figcaption className={styles.label}>{label}</figcaption>
-      <pre className={styles.out} tabIndex={0}>
+      {label && <figcaption className={styles.label}>{label}</figcaption>}
+      <pre className={styles.out}>
         <code>
           {runs.map((run, i) => (
             <span key={`${run.source}-${i}`} className={styles.run}>

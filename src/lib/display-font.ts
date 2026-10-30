@@ -1,17 +1,19 @@
 import type { Dictionary } from "@/content/types";
 
 /**
- * Korean display face (docs/DESIGN.md): the h1 and h2 lines are the only text
- * set in it, so the font file carries only their Hangul. Regenerate the file
+ * Korean display face (docs/DESIGN.md): the h1, the h2 lines and the closing
+ * line are the only text set in it, so the font file carries only their Hangul. Regenerate the file
  * with scripts/subset-display-ko.py when these lines change; a unit test
  * fails when a glyph is missing.
  */
 export function displayHeadings(t: Dictionary): string[] {
   return [
-    t.opening.title,
-    t.story.heading,
+    t.hero.title,
+    t.drift.heading,
+    t.anatomy.heading,
     t.playground.heading,
     t.review.heading,
+    t.finale.line,
     t.start.heading,
     t.limits.heading,
     t.open.heading,

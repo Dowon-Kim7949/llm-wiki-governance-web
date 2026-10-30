@@ -3,7 +3,7 @@
 // v1.42.0 output in tests/unit/playground.test.ts.
 import type { DocId, FileId, Mode } from "@/content/types";
 // Relative with an extension so the unit tests can load it under plain Node.
-import { CITES } from "./world.ts";
+import { CITES } from "./demo.ts";
 
 export type Outcome = {
   /** Docs whose evidence cites the file (what a reader inspects before changing it). */

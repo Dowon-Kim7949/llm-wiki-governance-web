@@ -1,0 +1,96 @@
+/* Scene 03: a specimen. Names on the left, the doc in the middle, its evidence running right. */
+.anatomy {
+  padding: clamp(3.5rem, 2rem + 5vw, 7rem) max(var(--gutter), calc((100% - var(--max)) / 2));
+  border-top: 1px solid var(--line-dim);
+  background:
+    linear-gradient(var(--night-2) 1px, transparent 1px) 0 0 / 100% 48px,
+    var(--night);
+}
+
+.heading {
+  max-width: 18ch;
+  font-size: var(--display-2);
+  font-weight: 820;
+  font-variation-settings: "wdth" 112;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+
+:lang(ko) .heading {
+  max-width: 14em;
+  font-size: var(--display-2-ko);
+  line-height: 1.22;
+}
+
+.lede {
+  max-width: 40rem;
+  margin-top: 0.9rem;
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--fg-soft);
+}
+
+.body {
+  display: grid;
+  gap: 2.5rem;
+  margin-top: clamp(2rem, 1rem + 3vw, 3.5rem);
+}
+
+.parts {
+  display: grid;
+  gap: 1.5rem;
+  margin: 0;
+  align-content: start;
+}
+
+.part dt {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.field {
+  justify-self: start;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: var(--fg);
+}
+
+.partTitle {
+  font-size: var(--step-1);
+  font-weight: 750;
+}
+
+.part dd {
+  margin: 0.4rem 0 0;
+  color: var(--fg-soft);
+}
+
+.figure {
+  position: relative;
+  display: grid;
+  gap: 1.5rem;
+  padding-right: 2rem;
+}
+
+.files {
+  display: grid;
+  gap: 1.25rem;
+  align-content: center;
+}
+
+@media (min-width: 64rem) {
+  .body {
+    grid-template-columns: minmax(0, 0.3fr) minmax(0, 0.7fr);
+    column-gap: clamp(2.5rem, 5vw, 5rem);
+  }
+  .figure {
+    --card-size: 1.05rem;
+    --code-em: 0.8em;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    column-gap: clamp(3.5rem, 5vw, 5rem);
+    padding-right: 0;
+    align-items: center;
+  }
+}

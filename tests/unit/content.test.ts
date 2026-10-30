@@ -58,15 +58,17 @@ test("commands that write are labelled as writing", () => {
   }
 });
 
-test("the scroll scenes have the same beats in both languages", () => {
-  const ids = (d: typeof ko) => ({
-    opening: d.opening.beats.map((b) => b.id),
-    story: d.story.beats.map((b) => b.id),
-    review: d.review.beats.map((b) => b.id),
+test("both languages tell the same story beat for beat", () => {
+  const skeleton = (d: typeof ko) => ({
+    review: d.review.steps.map((s) => s.id),
+    commits: d.drift.commits.map((c) => [c.date, c.file, Boolean(c.cited)]),
+    parts: d.anatomy.parts.map((p) => p.field),
+    captions: d.hero.captions.length,
   });
-  assert.deepEqual(ids(ko), ids(en));
-  assert.deepEqual(ids(ko).story, ["cite", "approve", "change", "stay", "flag"]);
-  assert.deepEqual(ids(ko).review, ["read", "downgrade", "fix", "approve", "cycle"]);
+  assert.deepEqual(skeleton(ko), skeleton(en));
+  assert.deepEqual(skeleton(ko).review, ["read", "downgrade", "fix", "approve"]);
+  // The drift timeline changes exactly one file a doc cites: the one the review example fixes.
+  assert.deepEqual(ko.drift.commits.filter((c) => c.cited).map((c) => c.file), ["src/invoice.js"]);
 });
 
 test("the start steps are published commands", () => {

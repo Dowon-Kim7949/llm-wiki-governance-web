@@ -4,11 +4,11 @@ import { TRANSCRIPTS } from "@/content/transcripts";
 import type { CommandEntry, Dictionary } from "@/content/types";
 import { CopyButton } from "@/components/CopyButton";
 import { LangSwitch } from "@/components/LangSwitch";
-import { REVIEW, STORY } from "@/components/scenes/beats";
-import { ScrollSetup } from "@/components/scenes/Motion";
-import { Opening } from "@/components/scenes/Opening";
+import { Anatomy } from "@/components/scenes/Anatomy";
+import { Drift } from "@/components/scenes/Drift";
+import { Hero } from "@/components/scenes/Hero";
 import { Playground } from "@/components/scenes/Playground";
-import { Sequence } from "@/components/scenes/Sequence";
+import { Review } from "@/components/scenes/Review";
 import { Terminal } from "@/components/scenes/Terminal";
 import { PRODUCT, SITE_REPO, asset, isLocale } from "@/lib/site";
 import styles from "./page.module.css";
@@ -36,7 +36,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
           </a>
           <nav aria-label={t.nav.label} className={styles.nav}>
             <ul>
-              <li><a href="#story">{t.nav.story}</a></li>
+              <li><a href="#anatomy">{t.nav.how}</a></li>
               <li><a href="#playground">{t.nav.playground}</a></li>
               <li><a href="#start">{t.nav.start}</a></li>
               <li><a href="#limits">{t.nav.limits}</a></li>
@@ -47,44 +47,58 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
       </header>
 
       <main id="main" tabIndex={-1}>
-        <Opening t={t} />
-        <Sequence id="story" t={t} heading={t.story.heading} intro={t.story.intro} stepOf={t.story.stepOf} beats={t.story.beats} states={STORY} />
+        <Hero t={t} />
+        <Drift t={t} />
+        <Anatomy t={t} />
         <Playground t={t} />
-        <Sequence
-          id="review"
+        <Review
           t={t}
-          heading={t.review.heading}
-          intro={t.review.intro}
-          stepOf={t.review.stepOf}
-          beats={t.review.beats}
-          states={REVIEW}
-          light="dawn"
-          details={[
+          commands={[
+            <Terminal key="read" runs={[TRANSCRIPTS.impact.invoice.standard]} />,
+            <Terminal key="downgrade" runs={[TRANSCRIPTS.refused, TRANSCRIPTS.downgrade]} />,
             null,
-            <Terminal key="downgrade" label={t.playground.terminal} runs={[TRANSCRIPTS.refused, TRANSCRIPTS.downgrade]} />,
-            null,
-            <Terminal key="approve" label={t.playground.terminal} runs={[TRANSCRIPTS.reapprove, TRANSCRIPTS.after]} />,
-            null,
+            <Terminal key="approve" runs={[TRANSCRIPTS.reapprove, TRANSCRIPTS.after]} />,
           ]}
         />
 
-        <section id="start" className={`${styles.start} env-paper`} aria-labelledby="start-title">
-          <div className={`wrap ${styles.startGrid}`}>
-            <div className={styles.startHead}>
-              <h2 id="start-title" className={styles.heading}>{t.start.heading}</h2>
-              <p className={styles.intro}>{t.start.intro}</p>
-              <ul className={styles.facts}>
-                {t.start.facts.map((fact) => <li key={fact}>{fact}</li>)}
-              </ul>
+        <section id="start" className={`${styles.start} env-night`} aria-labelledby="start-title">
+          <div className={styles.startInner}>
+            <div className={styles.resolution}>
+              <svg viewBox="0 0 160 40" aria-hidden="true" className={styles.mark}>
+                <rect x="2" y="8" width="44" height="24" rx="4" />
+                <rect x="114" y="8" width="44" height="24" rx="4" />
+                <path d="M50 20H110" />
+                <circle cx="50" cy="20" r="4" />
+                <circle cx="110" cy="20" r="4" />
+              </svg>
+              <p className={styles.finale}>
+                {t.finale.line.split(/(?<=\.) /).map((sentence, i) => (
+                  <span key={i} className={styles.sentence}>{sentence}</span>
+                ))}
+              </p>
             </div>
-            <div className={styles.preview}>
-              <h3 className={styles.previewTitle}>{t.start.previewTitle}</h3>
-              <div className={styles.cmdRow}>
-                <pre className={styles.cmd} tabIndex={0}><code id="cmd-preview">{preview.cmd}</code></pre>
-                <CopyButton text={preview.cmd} label={t.start.copy} copied={t.start.copied} failed={t.start.copyFailed} target="cmd-preview" />
+
+            <div className={styles.startGrid}>
+              <div className={styles.startHead}>
+                <h2 id="start-title" className={styles.heading}>{t.start.heading}</h2>
+                <p className={styles.intro}>{t.start.intro}</p>
+                <ul className={styles.facts}>
+                  {t.start.facts.map((fact) => <li key={fact}>{fact}</li>)}
+                </ul>
+                <p className={styles.repo}>
+                  <a className="btn btn-secondary" href={PRODUCT.repo}>{t.open.links.repo}</a>
+                </p>
               </div>
-              <p className={styles.effect}>{t.start.previewNote}</p>
+              <div className={styles.preview}>
+                <h3 className={styles.previewTitle}>{t.start.previewTitle}</h3>
+                <div className={styles.cmdRow}>
+                  <pre className={styles.cmd}><code id="cmd-preview">{preview.cmd}</code></pre>
+                  <CopyButton text={preview.cmd} label={t.start.copy} copied={t.start.copied} failed={t.start.copyFailed} target="cmd-preview" />
+                </div>
+                <p className={styles.effect}>{t.start.previewNote}</p>
+              </div>
             </div>
+
             <ol className={styles.steps}>
               {t.start.steps.map((id) => (
                 <li key={id}>
@@ -92,6 +106,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
                 </li>
               ))}
             </ol>
+
             <details className={styles.all}>
               <summary>{t.start.allCommands}</summary>
               <ol className={styles.allList}>
@@ -154,7 +169,6 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
           <p className={styles.footNote}>{t.footer.note}</p>
         </div>
       </footer>
-      <ScrollSetup />
     </>
   );
 }
@@ -176,7 +190,7 @@ function Command({ c, t, scope }: { c: CommandEntry; t: Dictionary; scope: strin
         </ul>
       </div>
       <div className={styles.cmdRow}>
-        <pre className={styles.cmd} tabIndex={0}><code id={id}>{c.cmd}</code></pre>
+        <pre className={styles.cmd}><code id={id}>{c.cmd}</code></pre>
         <CopyButton text={c.cmd} label={t.start.copy} copied={t.start.copied} failed={t.start.copyFailed} target={id} />
       </div>
       <p className={styles.effect}>{c.effect}</p>
