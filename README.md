@@ -10,7 +10,7 @@ The official website for [LLM-WIKI Governance](https://github.com/Dowon-Kim7949/
 
 ## Stack
 
-Next.js 16 (App Router, static export) · React 19 · TypeScript · plain CSS with CSS Modules · GitHub Pages via GitHub Actions. No backend, no database, no tracking.
+Next.js 16 (App Router, static export) · React 19 · TypeScript · GSAP ScrollTrigger ? CSS Modules · GitHub Pages via GitHub Actions. No backend, no database, no tracking.
 
 ## Develop
 
@@ -24,7 +24,7 @@ npm run build        # writes out/
 Browser tests (Python 3.10+):
 
 ```bash
-pip install playwright==1.56.0 && python -m playwright install chromium
+pip install playwright==1.56.0 Pillow && python -m playwright install chromium
 npm run build && npm run serve &      # http://localhost:4173/
 SITE_URL=http://localhost:4173 python tests/e2e/run_e2e.py
 ```
@@ -33,9 +33,9 @@ SITE_URL=http://localhost:4173 python tests/e2e/run_e2e.py
 
 ```
 src/app/[lang]/     locale root layout + the page (ko, en)
-src/components/     Experience (current page, motion and interaction), CopyButton, LangSwitch; legacy scenes/ and figure/ retained
+src/components/     Experience (page shell), story/ (persistent viewport narrative + optional demo), CopyButton, LangSwitch; legacy scenes/ and figure/ retained
 src/lib/            demo.ts (the demo repository: files, docs, citations), playground.ts (impact model), gsap.ts
-src/content/        ko.ts, en.ts (typed dictionaries), transcripts.ts (real CLI output, quoted line for line)
+src/content/        ko.ts, en.ts (typed dictionaries), story.ts (six-scene bilingual narrative), transcripts.ts (real CLI output, quoted line for line)
 scripts/            postbuild (/ and 404), static server, OG image renderer, CLI captures (capture-demo.sh, capture-playground.sh)
 docs/evidence/      raw v1.42.0 output the site quotes
 tests/unit/         content parity, claim checks, quoted output and the playground model against the evidence
@@ -45,7 +45,8 @@ docs/               design, product claims, testing, deployment
 
 ## Docs
 
-- [Current redesign](docs/REDESIGN_2026-10-30.md): timestamped reference analysis, creative decisions, asset prompt and verification
+- [Current stage redesign](docs/STAGE_REDESIGN_2026-10-30.md): architecture, recording observations, six scenes and verification
+- [Previous visual redesign](docs/REDESIGN_2026-10-30.md): historical asset direction and prompt
 - [Earlier design](docs/DESIGN.md): historical brief and directions
 - [Product claims](docs/PRODUCT_CLAIMS.md): every factual claim and how it was verified
 - [Testing and accessibility](docs/TESTING.md)

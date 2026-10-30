@@ -48,7 +48,7 @@ jobs:
           python-version: "3.12"
       - name: Install Playwright
         run: |
-          python -m pip install --quiet playwright==1.56.0
+          python -m pip install --quiet playwright==1.56.0 Pillow
           python -m playwright install --with-deps chromium
       - name: Browser tests against the build
         env:
@@ -66,7 +66,7 @@ jobs:
         if: always()
         with:
           name: screenshots-${{ github.sha }}
-          path: tests/e2e/screenshots/
+          path: test-results/stage/
           retention-days: 14
 
       - uses: actions/upload-pages-artifact@v5
@@ -105,7 +105,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: |
-          python -m pip install --quiet playwright==1.56.0
+          python -m pip install --quiet playwright==1.56.0 Pillow
           python -m playwright install --with-deps chromium
       - name: Browser tests against the live site
         env:

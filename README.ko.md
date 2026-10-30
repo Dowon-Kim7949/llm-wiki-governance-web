@@ -10,7 +10,7 @@
 
 ## 구성
 
-Next.js 16(App Router, 정적 export), React 19, TypeScript, 일반 CSS와 CSS Modules를 쓰고 GitHub Actions로 GitHub Pages에 배포합니다. 백엔드, 데이터베이스, 추적 스크립트는 없습니다.
+Next.js 16(App Router, 정적 export), React 19, TypeScript, GSAP ScrollTrigger와 CSS Modules를 사용합니다. 하나의 sticky 무대에서 스크롤에 따라 여섯 장면이 이어집니다. GitHub Pages 배포 설정을 유지하며, 백엔드·데이터베이스·추적 스크립트는 없습니다.
 
 ## 개발
 
@@ -24,19 +24,20 @@ npm run build        # out/ 생성
 브라우저 테스트(Python 3.10 이상):
 
 ```bash
-pip install playwright==1.56.0 && python -m playwright install chromium
+pip install playwright==1.56.0 Pillow && python -m playwright install chromium
 npm run build && npm run serve &      # http://localhost:4173/
 SITE_URL=http://localhost:4173 python tests/e2e/run_e2e.py
 ```
 
 ## 문서
 
-- [디자인](docs/DESIGN.md): 브리프, 검토한 세 방향, 토큰, 컴포넌트
+- [현재 무대 리디자인](docs/STAGE_REDESIGN_2026-10-30.md): 영상 관찰, 구조, 여섯 장면과 검증
+- [이전 디자인](docs/DESIGN.md): 과거 브리프와 방향
 - [제품 주장 근거](docs/PRODUCT_CLAIMS.md): 사이트의 사실 주장과 검증 방법
 - [테스트와 접근성](docs/TESTING.md)
 - [배포](docs/DEPLOYMENT.md)
 
-설계 문서는 영어로 씁니다. 사이트 본문은 한국어와 영어를 따로 편집합니다(`src/content/ko.ts`, `src/content/en.ts`).
+사이트 본문은 한국어와 영어를 따로 편집합니다(`src/content/ko.ts`, `src/content/en.ts`). 여섯 장면의 문구는 `src/content/story.ts`, 무대 구현은 `src/components/story/`에 있습니다.
 
 ## 라이선스
 

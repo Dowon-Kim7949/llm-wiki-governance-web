@@ -22,7 +22,7 @@
   --term-dim: #a9a9b4;
   --radius-s: 4px;
   --step--1: 0.8rem;
-  --header-h: 82px;
+  --header-h: 64px;
   color-scheme: light;
 }
 *,
@@ -33,7 +33,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  scroll-padding-top: var(--header-h);
+  scroll-padding-top: 0;
 }
 body {
   margin: 0;
@@ -160,7 +160,7 @@ summary {
 }
 @media (max-width: 700px) {
   :root {
-    --header-h: 72px;
+    --header-h: 64px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

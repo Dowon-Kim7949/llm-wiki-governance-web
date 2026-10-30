@@ -14,7 +14,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --no-warnings --test tests/unit/*.test.ts",
-    "test:e2e": "python tests/e2e/run_e2e.py",
+    "test:e2e": "python tests/e2e/stage.py",
     "serve": "node scripts/serve-out.mjs"
   },
   "dependencies": {
