@@ -5,7 +5,7 @@ export const ko: Dictionary = {
     title: "LLM-WIKI Governance: AI 에이전트 문서의 검토 상태와 소스 인용",
     description:
       "AI 코딩 에이전트가 쓰고 읽는 프로젝트 문서에 검토 상태와 소스 인용, 변경 점검을 붙이는 오픈 소스 CLI입니다. 런타임 의존성이 없고 MIT 라이선스입니다.",
-    ogAlt: "LLM-WIKI Governance. 문서가 인용한 소스와 그 소스의 변경을 선으로 잇는 도면",
+    ogAlt: "LLM-WIKI Governance. 소스와 문서의 근거 연결을 표현한 크롬과 코발트 조형",
   },
   nav: {
     skip: "본문으로 건너뛰기",

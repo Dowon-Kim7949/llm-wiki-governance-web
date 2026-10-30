@@ -40,4 +40,4 @@ SITE_URL=http://localhost:4173 python tests/e2e/run_e2e.py
 
 ## 라이선스
 
-웹사이트 코드는 MIT([LICENSE](LICENSE))입니다. 글꼴은 두 가지이며 모두 SIL Open Font License 1.1입니다. Archivo는 빌드 시 `next/font`가 자체 호스팅합니다. 한국어 제목에는 IBM Plex Sans KR Bold에서 한글 글리프만 잘라 낸 subset을 쓰고, 라이선스 조건에 따라 이름을 바꿨습니다. 그래픽은 모두 코드로 그린 자체 SVG입니다. 자세한 내용은 [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md)에 있습니다.
+웹사이트 코드는 MIT([LICENSE](LICENSE))입니다. 현재 화면은 빌드 시 자체 호스팅하는 Archivo(OFL-1.1)와 시스템 한국어 글꼴을 사용합니다. 이전 IBM Plex Sans KR 서브셋은 기존 자산으로 보존합니다. 크롬·코발트 연결 조형은 이미지 생성 도구로 제작했고, 인터페이스 아이콘은 SVG입니다. [리디자인 기록](docs/REDESIGN_2026-10-30.md)에 영상 분석과 이미지 프롬프트가 있으며, 라이선스 정보는 [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md)에 있습니다.

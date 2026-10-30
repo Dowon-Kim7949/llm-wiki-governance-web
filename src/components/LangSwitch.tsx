@@ -7,7 +7,19 @@ import { useEffect, useState } from "react";
 // section ids, so the link follows the current hash and lands on the
 // equivalent section. Before hydration (or without JavaScript) it is a plain
 // link to the other locale's top.
-export function LangSwitch({ href, hrefLang, label, name }: { href: string; hrefLang: string; label: string; name: string }) {
+export function LangSwitch({
+  href,
+  hrefLang,
+  label,
+  name,
+  className = "",
+}: {
+  href: string;
+  hrefLang: string;
+  label: string;
+  name: string;
+  className?: string;
+}) {
   const [target, setTarget] = useState(href);
 
   useEffect(() => {
@@ -21,7 +33,13 @@ export function LangSwitch({ href, hrefLang, label, name }: { href: string; href
   }, [href]);
 
   return (
-    <a href={target} hrefLang={hrefLang} lang={hrefLang} className="lang-switch" aria-label={`${label}: ${name}`}>
+    <a
+      href={target}
+      hrefLang={hrefLang}
+      lang={hrefLang}
+      className={`lang-switch ${className}`}
+      aria-label={`${label}: ${name}`}
+    >
       {name}
     </a>
   );

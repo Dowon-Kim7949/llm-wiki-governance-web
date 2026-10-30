@@ -1,254 +1,116 @@
-/*
- * Design tokens: "Exploded view" (docs/STORYBOARD.md).
- * Night is the system (code, change, checks); paper is the person (reading,
- * judging, using). A scene picks its light with .env-night or .env-paper.
- * Colour always travels with a shape and a word.
- */
-
-:root {
-  --night: #0f2536;
-  --night-2: #16324a;
-  --night-ink: #e4edf2;
-  --night-ink-soft: #a9bdca;
-  --night-line: #7fa6c0;
-  --night-line-dim: #2c4c66;
-
-  --paper: #e8ebe6;
-  --paper-2: #f4f6f2;
-  --ink: #17232b;
-  --ink-soft: #46555c;
-  --rule: #9aa6a3;
-
-  --font-display: var(--font-archivo), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
-  --font-body: var(--font-archivo), "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
-  --font-headline: var(--font-archivo), "LLM-WIKI Display KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
-  --font-code: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, "D2Coding", monospace;
-
-  /* Text scale: ratio 1.25 from 17px */
-  --step--1: 0.85rem;
-  --step-0: 1.0625rem;
-  --step-1: 1.33rem;
-  --step-2: 1.66rem;
-  --step-3: 2.08rem;
-
-  /* Display scale: drawing titles. Korean sets a size smaller for the same weight on the page. */
-  --display-1: clamp(2.5rem, 1rem + 3.7vw, 5rem);
-  --display-1-ko: clamp(2.25rem, 1rem + 3.6vw, 5rem);
-  --display-2: clamp(2.1rem, 1.1rem + 3.2vw, 4.4rem);
-  --display-2-ko: clamp(1.85rem, 1rem + 2.6vw, 3.6rem);
-  --display-3: clamp(1.5rem, 1rem + 1.4vw, 2.3rem);
-  --display-3-ko: clamp(1.35rem, 0.95rem + 1.2vw, 2rem);
-
-  --gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
-  --measure: 68ch;
-  --max: 80rem;
-  --radius-s: 3px;
-  --radius-m: 10px;
-  --header-h: 3.75rem;
-
-  /* Motion: three durations, two curves. Feedback is quick; a state change is
-     read as it happens; a scene beat (a card moving into line) takes longer. */
-  --dur-fast: 160ms;
-  --dur-state: 420ms;
-  --dur-scene: 780ms;
-  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
-
-  /* Paper cards that sit in any light (the review scene's captions). */
-  --card: #f4f6f2;
-  --card-fg: #17232b;
-  --card-soft: #46555c;
-  --card-edge: #17232b;
-}
-
-/* Phones put the menu on a second header row. */
-@media (max-width: 47.99rem) {
-  :root {
-    --header-h: 6rem;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #24333d;
-    --paper-2: #2c3d48;
-    --card: #2c3d48;
-    --card-fg: #e5ebe7;
-    --card-soft: #b5c2c4;
-    --card-edge: #6f8285;
-  }
-}
-
-/* Night: the system's light. */
-.env-night,
-:root {
-  --bg: var(--night);
-  --fg: var(--night-ink);
-  --fg-soft: var(--night-ink-soft);
-  --line: var(--night-line);
-  --line-dim: var(--night-line-dim);
-  --flag: #ff6fa3;
-  --held: #7fd0a2;
-  --pending: #f0c060;
-  --focus: #8ab4ff;
-  --term-bg: #0a1a27;
-  --term-edge: #2c4c66;
-  --term-fg: #d6e3ea;
-  --term-cmd: #ffffff;
-  --term-dim: #8aa3b4;
-  --btn-bg: #e4edf2;
-  --btn-fg: #0f2536;
-  color-scheme: dark;
-}
-
-/* Paper: a person's light. */
-.env-paper {
-  --bg: var(--paper);
-  --fg: var(--ink);
-  --fg-soft: var(--ink-soft);
-  --line: var(--rule);
-  --line-dim: #c5ccc8;
-  --flag: #b0124f;
-  --held: #2b6146;
-  --pending: #7a5500;
-  --focus: #0b57d0;
-  --term-bg: #17232b;
-  --term-edge: #17232b;
-  --term-fg: #e8ebe6;
-  --term-cmd: #ffffff;
-  --term-dim: #a9b6b3;
-  --btn-bg: #17232b;
-  --btn-fg: #e8ebe6;
+﻿:root {
+  --night: #09090b;
+  --paper: #f1f1f0;
+  --ink: #111114;
+  --blue: #3154ff;
+  --fg: #f7f7f5;
+  --bg: #09090b;
+  --fg-soft: #a1a1aa;
+  --focus: #7f96ff;
+  --held: #a2ffcf;
+  --pending: #fbd581;
+  --flag: #ff9c9c;
+  --font-body:
+    var(--font-archivo), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-headline:
+    var(--font-archivo), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-code: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --term-bg: #121216;
+  --term-edge: #38383f;
+  --term-fg: #e7e7ec;
+  --term-cmd: #fff;
+  --term-dim: #a9a9b4;
+  --radius-s: 4px;
+  --step--1: 0.8rem;
+  --header-h: 82px;
   color-scheme: light;
 }
-
-/* Readers who ask for dark pages get paper at dusk: still lighter than night. */
-@media (prefers-color-scheme: dark) {
-  .env-paper {
-    --bg: var(--paper);
-    --fg: #e5ebe7;
-    --fg-soft: #b5c2c4;
-    --line: #6f8285;
-    --line-dim: #45585f;
-    --flag: #ff7fae;
-    --held: #8fdcb0;
-    --pending: #f3c96e;
-    --focus: #9cc0ff;
-    --term-bg: #121c22;
-    --term-edge: #45585f;
-    --btn-bg: #e5ebe7;
-    --btn-fg: #17232b;
-    color-scheme: dark;
-  }
-}
-
-.env-night,
-.env-paper {
-  background: var(--bg);
-  color: var(--fg);
-}
-
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
-
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-padding-top: var(--header-h);
 }
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
 body {
   margin: 0;
   background: var(--night);
-  color: var(--night-ink);
+  color: #f7f7f5;
   font-family: var(--font-body);
-  font-size: var(--step-0);
+  font-size: 16px;
   line-height: 1.6;
-  font-variation-settings: "wdth" 100;
   overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
 }
-
-:lang(ko) body,
-body:lang(ko) {
+:lang(ko) {
   word-break: keep-all;
-  line-height: 1.7;
 }
-
-img,
-svg {
+button,
+input,
+select {
+  font: inherit;
+}
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+button {
+  cursor: pointer;
+}
+svg,
+img {
   display: block;
   max-width: 100%;
 }
-
-a {
-  color: inherit;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
+h1,
+h2,
+h3,
+p {
+  margin: 0;
 }
-
-a:hover {
-  text-decoration-thickness: 2px;
-}
-
-:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-
-code,
-kbd,
-pre {
-  font-family: var(--font-code);
-  font-size: 0.92em;
-}
-
-p code,
-li code,
-dd code {
-  overflow-wrap: anywhere;
-}
-
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
-  line-height: 1.12;
-  margin: 0;
-  text-wrap: balance;
-  /* Titles wrap between words only; a broken word in display type reads as a typo. */
-  overflow-wrap: normal;
-}
-
-h1,
-h2 {
   font-family: var(--font-headline);
 }
-
-h3 {
-  font-size: var(--step-1);
-  font-weight: 680;
+h1,
+h2 {
+  letter-spacing: -0.055em;
+  line-height: 1.15;
+  font-weight: 750;
 }
-
-p {
+code,
+pre {
+  font-family: var(--font-code);
+}
+em {
+  font-style: normal;
+}
+fieldset {
+  min-width: 0;
   margin: 0;
-  max-width: var(--measure);
-  text-wrap: pretty;
+  padding: 0;
+  border: 0;
 }
-
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 5px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+::selection {
+  background: #3154ff;
+  color: white;
+}
 .visually-hidden {
   position: absolute !important;
   width: 1px;
@@ -256,103 +118,57 @@ p {
   margin: -1px;
   padding: 0;
   overflow: hidden;
-  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
 }
-
 .skip-link {
-  position: absolute;
-  left: var(--gutter);
-  top: -4rem;
-  z-index: 30;
-  padding: 0.6rem 1rem;
-  background: var(--night-ink);
-  color: var(--night);
-  border-radius: var(--radius-s);
+  position: fixed;
+  top: -100px;
+  left: 20px;
+  z-index: 100;
+  padding: 14px 24px;
+  background: white;
+  color: black;
 }
-
 .skip-link:focus {
-  top: 0.5rem;
+  top: 12px;
 }
-
-.wrap {
-  width: 100%;
-  max-width: var(--max);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-}
-
-/* Shape + colour + text, never colour alone. */
-.marker {
-  display: inline-block;
-  width: 0.85em;
-  height: 0.85em;
-  flex: none;
-  vertical-align: -0.05em;
-}
-
-/* Buttons take the scene's light. */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: 48px;
-  padding: 0.7rem 1.3rem;
-  border: 2px solid var(--btn-bg);
-  border-radius: var(--radius-s);
-  font: inherit;
-  font-weight: 650;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background: var(--btn-bg);
-  color: var(--btn-fg);
-}
-
-.btn-primary:hover {
-  background: var(--flag);
-  border-color: var(--flag);
-  color: var(--btn-fg);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--fg);
-}
-
-.btn-secondary:hover {
-  background: color-mix(in srgb, var(--fg) 12%, transparent);
-}
-
-/* Copy buttons */
 .copy-btn {
-  flex: none;
+  min-width: 74px;
   min-height: 44px;
-  min-width: 5.5rem;
-  padding: 0.5rem 0.9rem;
-  border: 2px solid var(--fg);
-  border-radius: var(--radius-s);
+  flex-shrink: 0;
+  border: 1px solid #53535e;
+  border-radius: 30px;
   background: transparent;
-  color: var(--fg);
-  font: inherit;
-  font-size: var(--step--1);
-  font-weight: 650;
+  color: inherit;
+  padding: 8px 16px;
+  font-size: 12px;
+}
+.copy-btn:hover,
+.copy-btn[data-state="copied"] {
+  background: #3154ff;
+  border-color: #3154ff;
+  color: white;
+}
+.copy-failed {
+  color: #ffb4b4;
+  font-size: 12px;
+}
+summary {
   cursor: pointer;
 }
-
-.copy-btn[data-state="copied"] {
-  background: var(--held);
-  border-color: var(--held);
-  color: var(--bg);
+@media (max-width: 700px) {
+  :root {
+    --header-h: 72px;
+  }
 }
-
-.copy-failed {
-  display: block;
-  width: 100%;
-  margin-top: 0.4rem;
-  font-size: var(--step--1);
-  color: var(--flag);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }

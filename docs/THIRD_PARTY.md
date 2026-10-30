@@ -4,16 +4,16 @@
 | --- | --- | --- |
 | Archivo (Omnibus-Type) | SIL Open Font License 1.1 | Downloaded from Google Fonts at build time by `next/font/google` and served from this site |
 | GSAP 3.15.0 (GreenSock, Webflow) | Standard "no charge" GSAP License (https://gsap.com/standard-license; effective 2025-04-30, last modified 2025-05-30, read 2026-10-29) | Animation runtime, bundled into the site's JavaScript. The licence permits use on any website, including commercial use; it forbids using GSAP in tools that compete with Webflow's visual animation builder and forbids removing GSAP's notices. The production build strips GSAP's banner comment, so the site's footer names GSAP and links the licence. Not MIT: the site's own code stays MIT, GSAP stays under its own licence, and Webflow may change the licence for later versions |
-| IBM Plex Sans KR Bold (IBM) | SIL Open Font License 1.1 | Cut to the 52 Hangul glyphs of the Korean h1/h2 lines by `scripts/subset-display-ko.py`, committed as `public/fonts/display-ko-bold.woff2`. "Plex" is a Reserved Font Name, so this Modified Version is renamed "LLM-WIKI Display KR"; IBM's copyright and the licence stay in the font's name table, and the full licence ships beside it as `public/fonts/OFL-IBM-Plex-Sans-KR.txt` |
+| IBM Plex Sans KR Bold (IBM) | SIL Open Font License 1.1 | Legacy asset, no longer loaded by the current page. Cut to the 52 Hangul glyphs of the previous Korean h1/h2 lines by `scripts/subset-display-ko.py`, committed as `public/fonts/display-ko-bold.woff2`. "Plex" is a Reserved Font Name, so this Modified Version is renamed "LLM-WIKI Display KR"; IBM's copyright and the licence stay in the font's name table, and the full licence ships beside it as `public/fonts/OFL-IBM-Plex-Sans-KR.txt` |
 | Next.js, React, React DOM | MIT | Runtime framework |
 | axe-core | MPL-2.0 | Dev dependency, injected into pages only during tests |
 | Playwright (Python) | Apache-2.0 | Test tool, not part of the site |
 
-All illustrations, icons and the Open Graph cards are original SVG/HTML drawn in this repository. No stock images, no third-party icon sets.
+The chrome/cobalt sculpture in `public/images/evidence-links.webp` was generated with the built-in image_gen tool, then encoded as WebP. The exact prompt and provenance are in [REDESIGN_2026-10-30.md](REDESIGN_2026-10-30.md). Icons are original SVG. Open Graph images are rendered from the sculpture and HTML by `scripts/make_og.py`. No reference-video assets or third-party icon sets are used.
 
 `node scripts/licenses.mjs` lists the licence of every installed production dependency. On 2026-10-29 it reported MIT, ISC, Apache-2.0, BSD-3-Clause and 0BSD, plus three build-time packages outside that list:
 
-- `@img/sharp-*` (Apache-2.0 and LGPL-3.0-or-later): an optional Next.js dependency for image optimisation. This site sets `images.unoptimized`, so it never runs, and nothing from it is in `out/`.
+- `@img/sharp-*` (Apache-2.0 and LGPL-3.0-or-later): an optional Next.js dependency for image optimisation. This site sets `images.unoptimized`, so it is not a runtime dependency of the exported site. Sharp was used locally to encode the generated sculpture as WebP; no Sharp runtime is in `out/`.
 - `caniuse-lite` (CC-BY-4.0): browser support data read at build time. Not shipped in `out/`.
 
 The published site (`out/`) contains only this repository's code, Next.js/React runtime code (MIT), GSAP (Standard "no charge" GSAP License), the Archivo font files and the IBM Plex Sans KR subset (both OFL-1.1). `node scripts/licenses.mjs` lists GSAP outside its permissive allow-list for that reason.

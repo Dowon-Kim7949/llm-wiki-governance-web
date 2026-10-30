@@ -1,3 +1,5 @@
+> Historical design document. The current local redesign is described in [REDESIGN_2026-10-30.md](REDESIGN_2026-10-30.md).
+
 # Design
 
 ## Brief

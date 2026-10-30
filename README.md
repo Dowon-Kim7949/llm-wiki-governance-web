@@ -33,7 +33,7 @@ SITE_URL=http://localhost:4173 python tests/e2e/run_e2e.py
 
 ```
 src/app/[lang]/     locale root layout + the page (ko, en)
-src/components/     scenes/ (hero, drift, anatomy, playground, review, terminal), figure/ (doc and code cards, connectors), CopyButton, LangSwitch
+src/components/     Experience (current page, motion and interaction), CopyButton, LangSwitch; legacy scenes/ and figure/ retained
 src/lib/            demo.ts (the demo repository: files, docs, citations), playground.ts (impact model), gsap.ts
 src/content/        ko.ts, en.ts (typed dictionaries), transcripts.ts (real CLI output, quoted line for line)
 scripts/            postbuild (/ and 404), static server, OG image renderer, CLI captures (capture-demo.sh, capture-playground.sh)
@@ -45,11 +45,12 @@ docs/               design, product claims, testing, deployment
 
 ## Docs
 
-- [Design](docs/DESIGN.md): brief, three directions, tokens, components
+- [Current redesign](docs/REDESIGN_2026-10-30.md): timestamped reference analysis, creative decisions, asset prompt and verification
+- [Earlier design](docs/DESIGN.md): historical brief and directions
 - [Product claims](docs/PRODUCT_CLAIMS.md): every factual claim and how it was verified
 - [Testing and accessibility](docs/TESTING.md)
 - [Deployment](docs/DEPLOYMENT.md)
 
 ## Licence
 
-Website code: MIT ([LICENSE](LICENSE)). Fonts: Archivo, self-hosted at build time by `next/font`, and a Hangul subset of IBM Plex Sans KR Bold for Korean headings, renamed as the licence requires; both SIL Open Font License 1.1. All graphics are original SVG drawn in code. See [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).
+Website code: MIT ([LICENSE](LICENSE)). The current page uses Archivo (SIL Open Font License 1.1), self-hosted at build time by `next/font`, and system Korean fonts. The previous IBM Plex Sans KR subset is retained as a legacy asset. The main sculpture is an original generated bitmap; interface icons are SVG. See [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md).

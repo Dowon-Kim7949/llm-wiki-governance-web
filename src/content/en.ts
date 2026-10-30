@@ -5,7 +5,7 @@ export const en: Dictionary = {
     title: "LLM-WIKI Governance: review states and source citations for AI-written docs",
     description:
       "An open-source CLI that adds review states, source citations, and change checks to the project docs your AI coding agent writes and reads. Zero runtime dependencies, MIT licensed.",
-    ogAlt: "LLM-WIKI Governance. A drawing that connects a document to the sources it cites and marks the one that changed",
+    ogAlt: "LLM-WIKI Governance. Chrome and cobalt links representing the connection between source code and documentation",
   },
   nav: {
     skip: "Skip to content",
