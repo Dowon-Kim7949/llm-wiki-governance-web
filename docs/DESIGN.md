@@ -6,7 +6,20 @@ The official site for [LLM-WIKI Governance](https://github.com/Dowon-Kim7949/llm
 
 Starting concept from the brief: *Traceable Knowledge*. Process followed: Anthropic's `frontend-design` skill (two passes: token plan, review against generic defaults, then build and critique with screenshots). For the first release the skill was read from `anthropics/skills` and its process followed by hand. The second pass (2026-10-29, logged below) ran with the skill loaded from the `example-skills` plugin.
 
-## Current direction: Exploded view (immersive redesign)
+## Current direction: Alignment
+
+Branch `design/alignment` (2026-10-30). The exploded view put the sentence the site is about on tilted plates too small to read, repeated one layout three times, and pinned scenes that broke the wordmark's return to the top. The weaknesses found on the live site, the narrative and the section-by-section plan are in [STORYBOARD.md](STORYBOARD.md); this section records the system.
+
+- **Frontal figures.** A doc is a paper card (`#f4f6f2`, 2px ink border), code is a night card (`#0a1a27`), both flat and at reading size. Type inside a card is in `em`; each scene sets `--card-size` (hero `clamp(1rem, 0.55rem + 0.75vw, 1.25rem)`, anatomy 1.05rem, review up to 1.12rem, playground 0.95rem). `src/components/figure/Cards.tsx`.
+- **Connectors.** SVG drawn from measured `[data-a]` anchors (`src/components/figure/Links.tsx`): straight when the claim row and the code row line up, stepped with rounded elbows when they do not, a bracket on the right when the cards stack on a phone. States: aligned (green, solid), shifted (magenta), draft (ochre, dashed), unchecked (grey, dotted), muted. `useAlign` moves a doc card so its claim sits on the row of the code it was approved against; when the code changes, the old row is the target, so the change reads as a step.
+- **Status.** Needs review: magenta flag with "Look again" and a magenta border. Reviewed: green triangle, `verified`, the new `reviewed_at` highlighted. Unaffected: dashed circle and a word. Not checked (lite): crossed circle and a dotted grey connector. Every state is a word plus a shape plus a colour.
+- **Two lights, kept.** Night is the system (code, change, checks); paper is the person. The review section is paper; the last section returns to night with the aligned mark.
+- **Composition per section.** Full-width headline over a framed figure; a time axis; a specimen; a three-column bench; a paper desk with a step rail; a closing mark. No two adjacent sections share a layout.
+- **Motion.** Three durations (`--dur-fast` 160 ms, `--dur-state` 420 ms, `--dur-scene` 780 ms) and two easings (`--ease-out`, `--ease-move`) in `globals.css`. State changes are eased; scroll scrubs only the drift timeline, where scroll is time. Nothing is pinned: the timeline is CSS `position: sticky` inside a tall track and GSAP's ScrollTrigger only reports progress (`src/components/scenes/Drift.tsx`, loaded with a dynamic import on wide screens with motion allowed). Reduced motion: transitions are instant, the opening shows its end state, the timeline is a static log.
+- **Type.** Unchanged: Archivo for titles and text, the IBM Plex Sans KR subset for Korean display lines (now 62 Hangul glyphs, 17.7 KB), system mono for code. Korean titles break between clauses (`/(?<=[,.]) /`), the closing line one sentence per line.
+- **Removed.** The axonometric camera (`src/lib/axo.ts`), the world renderer, the pinned opening, story and review scenes, `ScrollSetup` and `@gsap/react`.
+
+## Earlier direction: Exploded view (2026-10-29)
 
 Branch `design/immersive-redesign`. The reviewer rejected the first release as a long technical document and asked for a motion-driven product microsite. The concept comparison, the reference-video analysis and the scene-by-scene storyboard are in [STORYBOARD.md](STORYBOARD.md); this section records the system that came out of it.
 
@@ -102,3 +115,13 @@ Content lives in typed dictionaries (`src/content/types.ts`), so a missing trans
 - English titles broke inside words at 1920 px ("change / s") because display type inherited `overflow-wrap: break-word`. Titles wrap between words only.
 - The production build strips GSAP's banner comment; the GSAP licence forbids removing its notices, so the footer's title block names GSAP and links its licence.
 - Considered and not done: a continuous camera "dive" from the opening into the story (the opening ends on a flagged doc and the story starts from a draft, so a continuous shot would play time backwards), a custom cursor, and a chapter rail.
+- Alignment pass (branch `design/alignment`), from a review of the live exploded view at 1440, 1280, 390 and 360 px. The logo bug reproduced exactly as reported: from the footer the wordmark set `#top` and left the page at scrollY 1949 inside the pinned opening, headline faded out. No section is pinned now; an e2e check clicks the wordmark from the bottom and expects scrollY 0 with the headline and both actions in view.
+- The first hero kept the title in the left column, and IBM Plex Sans KR split "근거는 / 어긋납니다." The title now spans the full width on its own row.
+- `useAlign` lifted the hero's doc card to meet the code line, over the figure's top edge and toward the title. The code card now sits lower (`margin-top: 4.5rem`), so the doc settles downward into line; the review desk got the same room. The hero's minimal doc card names only `billing.md`, so its title never wraps.
+- Cards first set in `rem` read small at 1440 px next to the display type. Card type moved to `em` with a size per scene.
+- Evidence such as `src/invoice.js#symbol:computeTotal` broke inside the fragment on phones. Playground cards show the path only; full cards move the fragment to the next line whole.
+- In the drift timeline the stale bar ran under the agent label (now its own row); the "now" line crossed commit labels (it spans the axis and the doc lane only); and the bar's label was clipped mid-word as it grew (the bar is never narrower than its words).
+- Commits "now" had not reached were at 16% opacity, which axe flagged as unreadable text. They are set back with colour, weight, a hollow dot and 72% opacity, which keeps 4.5:1.
+- On phones the playground's result was a full screen below the apply button, and the review's step text came after the desk. The apply button now follows the mode choice, so the result is directly under it; the review reads rail, step text, desk, pager. Tab order follows the visual order in both.
+- A file no doc cites used to end in "review billing.md" with no explanation. The next step now says no doc needs review and offers the review section as an example with billing.md; the review section's lede says the same.
+- Considered and not done: keeping scroll-driven steps for the review (a rail of buttons is quicker, reversible and readable at any speed), a horizontal scroll section, and a custom cursor.
